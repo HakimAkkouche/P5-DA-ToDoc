@@ -39,7 +39,7 @@ public abstract class TasksViewState {
         private final String mTaskName;
         private final long mCreationTimestamp;
 
-        public Task( String nameProject, @ColorInt int projectColor, long taskId, @NonNull String taskName, @NonNull long creationTimestamp) {
+        public Task( String nameProject, @ColorInt int projectColor, long taskId, @NonNull String taskName, long creationTimestamp) {
             super(Type.TASK);
 
             mNameProject = nameProject;

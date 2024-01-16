@@ -29,7 +29,7 @@ import java.util.concurrent.Executor;
 public abstract class ToDocDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "ToDoc_Database";
 
-    private static ToDocDatabase sInstance;
+    private static volatile ToDocDatabase sInstance;
 
     public static ToDocDatabase getInstance(@NonNull Application application, @NonNull Executor executor){
         if (sInstance == null){
@@ -55,7 +55,6 @@ public abstract class ToDocDatabase extends RoomDatabase {
             public void onCreate(@NonNull SupportSQLiteDatabase db) {
                 executor.execute(() -> {
                     ProjectDao projectDao = ToDocDatabase.getInstance(application,executor).getProjectDao();
-                    TaskDao taskDao = ToDocDatabase.getInstance(application, executor).getTaskDao();
 
                     projectDao.insert(
                             new ProjectEntity(

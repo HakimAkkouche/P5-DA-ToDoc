@@ -21,12 +21,9 @@ import java.util.concurrent.Executors;
  * The ViewModelFactory is the class responsible for the creation of every ViewModel in the application.
  * In this essence, its instance should be unique and available everywhere. This concept has a name :
  * this is the Singleton pattern (check the getInstance() method for more details).
- *
  * Since the ViewModelFactory is the "entry point" for injection, this class will also be responsible
  * of injecting correctly the dependencies, creating a "graph" or "tree" of injection
- *
  * In the end, the schema we could make about the injection is this :
- *
  *       View       -->       ViewModel       -->     Repository     --> Datasource
  *                                ↑
  *                      Injection starts here,
@@ -35,7 +32,7 @@ import java.util.concurrent.Executors;
  */
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
-    private static ViewModelFactory mFactory;
+    private static volatile ViewModelFactory mFactory;
     private final BuildConfigResolver mBuildConfigResolver = new BuildConfigResolver();
     private final ToDocRepository mToDocRepository;
     private final Executor mExecutor = Executors.newFixedThreadPool(4);

@@ -1,7 +1,6 @@
 package com.cleanup.todoc.utils;
 
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.core.internal.deps.dagger.internal.Preconditions.checkNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -14,15 +13,10 @@ import android.widget.ImageView;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IdRes;
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewAssertion;
-import androidx.test.espresso.matcher.BoundedMatcher;
-import androidx.test.espresso.matcher.ViewMatchers;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -88,59 +82,15 @@ public class ViewAssertions {
         });
     }
 
-    public static ViewAssertion onRecyclerViewItem(@IntRange(from = 0) int position, @IdRes int viewId, @NonNull Matcher<View> matcher) {
-        return new ViewAssertion() {
-            @Override
-            public void check(View view, @Nullable NoMatchingViewException noViewFoundException) {
-                if (noViewFoundException != null) {
-                    throw noViewFoundException;
-                }
-
-                if (!(view instanceof RecyclerView)) {
-                    throw new IllegalStateException("The asserted view is not RecyclerView");
-                }
-
-                RecyclerView recyclerView = (RecyclerView) view;
-                RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
-
-                if (viewHolder == null) {
-                    String additionalInfo;
-
-                    if (recyclerView.getAdapter() == null) {
-                        additionalInfo = ", because no adapter is set for the RecyclerView";
-                    } else {
-                        additionalInfo = ", but there is " + recyclerView.getAdapter().getItemCount() + " items in adapter";
-                    }
-
-                    throw new IllegalStateException(
-                            "No ViewHolder found for adapter position : " + position + additionalInfo
-                    );
-                }
-
-                View childView = viewHolder.itemView.findViewById(viewId);
-
-                if (childView == null) {
-                    throw new IllegalStateException("No view found with id : " + recyclerView.getResources().getResourceEntryName(viewId));
-                }
-
-                ViewMatchers.assertThat(childView, matcher);
-            }
-        };
-    }
-
     public static ViewAssertion hasRecyclerViewItemCount(int itemCount) {
-        return new ViewAssertion() {
+        return (view, noViewFoundException) -> {
+            if (noViewFoundException != null) {
+                throw noViewFoundException;
+            }
 
-            @Override
-            public void check(View view, NoMatchingViewException noViewFoundException) {
-                if (noViewFoundException != null) {
-                    throw noViewFoundException;
-                }
-
-                RecyclerView recyclerView = (RecyclerView) view;
-                if (recyclerView.getAdapter() != null) {
-                    assertThat(recyclerView.getAdapter().getItemCount(), is(itemCount));
-                }
+            RecyclerView recyclerView = (RecyclerView) view;
+            if (recyclerView.getAdapter() != null) {
+                assertThat(recyclerView.getAdapter().getItemCount(), is(itemCount));
             }
         };
     }
@@ -158,26 +108,6 @@ public class ViewAssertions {
             @Override
             public boolean matchesSafely(View view) {
                 return matcher.matches(view) && currentIndex++ == index;
-            }
-        };
-    }
-    public static Matcher<View> atPosition(final int position, @NonNull final Matcher<View> itemMatcher) {
-        checkNotNull(itemMatcher);
-        return new BoundedMatcher<View, RecyclerView>(RecyclerView.class) {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("has item at position " + position + ": ");
-                itemMatcher.describeTo(description);
-            }
-
-            @Override
-            protected boolean matchesSafely(final RecyclerView view) {
-                RecyclerView.ViewHolder viewHolder = view.findViewHolderForAdapterPosition(position);
-                if (viewHolder == null) {
-                    // has no item on such position
-                    return false;
-                }
-                return itemMatcher.matches(viewHolder.itemView);
             }
         };
     }

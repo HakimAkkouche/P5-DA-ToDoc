@@ -1,7 +1,6 @@
 package com.cleanup.todoc.ui;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
@@ -10,7 +9,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cleanup.todoc.R;
 import com.cleanup.todoc.databinding.ItemTaskBinding;
 import com.cleanup.todoc.databinding.ItemTaskEmptyBinding;
 import com.cleanup.todoc.ui.viewmodel.TasksViewState;
@@ -43,7 +41,6 @@ public class TasksAdapter extends ListAdapter<TasksViewState, RecyclerView.ViewH
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_task, viewGroup, false);
         switch (TasksViewState.Type.values()[viewType]) {
             case TASK:
                 return new TaskViewHolder(

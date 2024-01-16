@@ -129,7 +129,7 @@ public class AddTaskViewModel extends ViewModel {
                 try {
                     mTaskRepository.addTask(new TaskEntity(mProjectId, mNameTask, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
 
-                    mMainExecutor.execute(() -> mDismissDialogSingleLiveEvent.call());
+                    mMainExecutor.execute(mDismissDialogSingleLiveEvent::call);
                 } catch (SQLiteException e) {
                     if (mBuildConfigResolver.isDebug()) {
                         e.printStackTrace();

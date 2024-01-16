@@ -38,7 +38,7 @@ public class TasksFragment extends Fragment implements NavigationListener {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
 
@@ -51,9 +51,7 @@ public class TasksFragment extends Fragment implements NavigationListener {
         binding.listTasks.setAdapter(tasksAdapter);
         binding.fabAddTask.setOnClickListener(v -> displayAddTaskDialog());
 
-        mTasksViewModel.getViewStateLiveData().observe(getViewLifecycleOwner(), tasksViewStates -> {
-            tasksAdapter.submitList(tasksViewStates);
-        });
+        mTasksViewModel.getViewStateLiveData().observe(getViewLifecycleOwner(), tasksAdapter::submitList);
 
 
         return binding.getRoot();
@@ -67,7 +65,7 @@ public class TasksFragment extends Fragment implements NavigationListener {
      * for more information.
      *
      * @param menu     The options menu in which you place your items.
-     * @param inflater
+     * @param inflater inflater
      * @see #setHasOptionsMenu
      * @see #onPrepareOptionsMenu
      * @see #onOptionsItemSelected

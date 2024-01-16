@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -24,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
-import com.cleanup.todoc.data.BuildConfigResolver;
 import com.cleanup.todoc.data.ToDocRepository;
 import com.cleanup.todoc.data.entity.ProjectEntity;
 import com.cleanup.todoc.data.entity.ProjectTasksRelation;
@@ -55,7 +55,6 @@ public class TaskUnitTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private final ToDocRepository toDocRepository = Mockito.mock(ToDocRepository.class);
-    private final BuildConfigResolver buildConfigResolver = Mockito.mock(BuildConfigResolver.class);
     private final Executor executor = Mockito.spy(new TestExecutor());
 
     private final MutableLiveData<List<ProjectTasksRelation>> projectTasksRelationMutableLiveData = new MutableLiveData<>();
@@ -212,7 +211,6 @@ public class TaskUnitTest {
 
     @NonNull
     private List<TasksViewState> getTaskViewStatesAlphabeticalDesc() {
-        List<TasksViewState> taskViewStates = new ArrayList<>();
 
         int idTask = 0;
         Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o2.getCreationTimestamp(), o1.getCreationTimestamp()));
@@ -227,15 +225,13 @@ public class TaskUnitTest {
                 );
             }
         }
-        taskViewStates.addAll(set);
-        return taskViewStates;
+        return new ArrayList<>(set);
     }
     @NonNull
     private List<TasksViewState> getTaskViewStatesAlphabeticalAsc() {
-        List<TasksViewState> taskViewStates = new ArrayList<>();
 
         int idTask = 0;
-        Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o1.getCreationTimestamp(), o2.getCreationTimestamp()));
+        Set<TasksViewState.Task> set = new TreeSet<>(Comparator.comparingLong(TasksViewState.Task::getCreationTimestamp));
         for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
             for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
                 idTask++;
@@ -247,7 +243,6 @@ public class TaskUnitTest {
                 );
             }
         }
-        taskViewStates.addAll(set);
-        return taskViewStates;
+        return new ArrayList<>(set);
     }
 }

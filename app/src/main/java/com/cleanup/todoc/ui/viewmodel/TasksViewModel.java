@@ -7,12 +7,12 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.cleanup.todoc.data.BuildConfigResolver;
 import com.cleanup.todoc.data.ToDocRepository;
 import com.cleanup.todoc.data.entity.ProjectTasksRelation;
 import com.cleanup.todoc.data.entity.TaskEntity;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,7 +46,7 @@ public class TasksViewModel extends ViewModel {
         List<TasksViewState> taskViewStates = new ArrayList<>();
 
         if (taskSortingType == TaskSortingType.ALPHABETICAL_ASC) {
-            Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> o1.getTaskName().compareTo(o2.getTaskName()));
+            Set<TasksViewState.Task> set = new TreeSet<>(Comparator.comparing(TasksViewState.Task::getTaskName));
             for (ProjectTasksRelation projectWithTasksEntity : projectsWithTasks) {
                 for (TaskEntity taskEntity : projectWithTasksEntity.getTaskEntities()) {
                     set.add(mapItem(projectWithTasksEntity, taskEntity));
@@ -62,7 +62,7 @@ public class TasksViewModel extends ViewModel {
             }
             taskViewStates.addAll(set);
         } else if (taskSortingType == TaskSortingType.CHRONOLOGICAL_ASC) {
-            Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o1.getCreationTimestamp(), o2.getCreationTimestamp()));
+            Set<TasksViewState.Task> set = new TreeSet<>(Comparator.comparingLong(TasksViewState.Task::getCreationTimestamp));
             for (ProjectTasksRelation projectWithTasksEntity : projectsWithTasks) {
                 for (TaskEntity taskEntity : projectWithTasksEntity.getTaskEntities()) {
                     set.add(mapItem(projectWithTasksEntity, taskEntity));
@@ -84,7 +84,7 @@ public class TasksViewModel extends ViewModel {
                 }
             }
         }else {
-            Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o1.getTaskId(),o2.getTaskId()));
+            Set<TasksViewState.Task> set = new TreeSet<>(Comparator.comparingLong(TasksViewState.Task::getTaskId));
             for (ProjectTasksRelation projectWithTask : projectsWithTasks) {
                 for (TaskEntity taskEntity : projectWithTask.getTaskEntities()) {
                     set.add(mapItem(projectWithTask, taskEntity));
