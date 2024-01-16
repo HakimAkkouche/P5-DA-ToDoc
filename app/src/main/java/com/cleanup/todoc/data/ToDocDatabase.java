@@ -14,11 +14,8 @@ import com.cleanup.todoc.R;
 import com.cleanup.todoc.data.dao.ProjectDao;
 import com.cleanup.todoc.data.dao.TaskDao;
 import com.cleanup.todoc.data.entity.ProjectEntity;
-import com.cleanup.todoc.data.entity.ProjectTasksRelation;
 import com.cleanup.todoc.data.entity.TaskEntity;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.concurrent.Executor;
 
 @Database(

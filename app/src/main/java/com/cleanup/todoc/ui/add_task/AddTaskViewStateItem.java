@@ -9,32 +9,32 @@ import java.util.Objects;
 
 public class AddTaskViewStateItem {
 
-    private final long projectId;
+    private final long mProjectId;
 
     @ColorInt
-    private final int projectColor;
+    private final int mProjectColor;
 
     @NonNull
-    private final String projectName;
+    private final String mProjectName;
 
     public AddTaskViewStateItem(long projectId, @ColorInt int projectColor, @NonNull String projectName) {
-        this.projectId = projectId;
-        this.projectColor = projectColor;
-        this.projectName = projectName;
+        this.mProjectId = projectId;
+        this.mProjectColor = projectColor;
+        this.mProjectName = projectName;
     }
 
     public long getProjectId() {
-        return projectId;
+        return mProjectId;
     }
 
     @ColorInt
     public int getProjectColor() {
-        return projectColor;
+        return mProjectColor;
     }
 
     @NonNull
     public String getProjectName() {
-        return projectName;
+        return mProjectName;
     }
 
     @Generated
@@ -43,15 +43,15 @@ public class AddTaskViewStateItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AddTaskViewStateItem that = (AddTaskViewStateItem) o;
-        return projectId == that.projectId &&
-                projectColor == that.projectColor &&
-                projectName.equals(that.projectName);
+        return mProjectId == that.mProjectId &&
+                mProjectColor == that.mProjectColor &&
+                mProjectName.equals(that.mProjectName);
     }
 
     @Generated
     @Override
     public int hashCode() {
-        return Objects.hash(projectId, projectColor, projectName);
+        return Objects.hash(mProjectId, mProjectColor, mProjectName);
     }
 
     @Generated
@@ -59,9 +59,9 @@ public class AddTaskViewStateItem {
     @Override
     public String toString() {
         return "AddTaskViewStateItem{" +
-                "projectId=" + projectId +
-                ", projectColor=" + projectColor +
-                ", projectName='" + projectName + '\'' +
+                "projectId=" + mProjectId +
+                ", projectColor=" + mProjectColor +
+                ", projectName='" + mProjectName + '\'' +
                 '}';
     }
 }

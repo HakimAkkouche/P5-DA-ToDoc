@@ -15,15 +15,15 @@ public abstract class TasksViewState {
     }
 
     @NonNull
-    protected final Type type;
+    protected final Type mType;
 
     public TasksViewState(@NonNull Type type) {
-        this.type = type;
+        this.mType = type;
     }
 
     @NonNull
     public Type getType() {
-        return type;
+        return mType;
     }
 
     @Override
@@ -31,20 +31,17 @@ public abstract class TasksViewState {
 
     public static class Task extends TasksViewState {
 
-        private final long mProjectId;
         @ColorInt
         private final int mProjectColor;
         private final String mNameProject;
-
         private final long mTaskId;
         @NonNull
         private final String mTaskName;
         private final long mCreationTimestamp;
 
-        public Task( long projectId, String nameProject, @ColorInt int projectColor, long taskId, @NonNull String taskName, @NonNull long creationTimestamp) {
+        public Task( String nameProject, @ColorInt int projectColor, long taskId, @NonNull String taskName, @NonNull long creationTimestamp) {
             super(Type.TASK);
 
-            mProjectId = projectId;
             mNameProject = nameProject;
             mProjectColor = projectColor;
             mTaskId = taskId;
@@ -95,7 +92,7 @@ public abstract class TasksViewState {
         @Override
         public String toString() {
             return "Task{" +
-                    "type=" + type +
+                    "type=" + mType +
                     ", taskId=" + mTaskId +
                     ", projectColor=" + mProjectColor +
                     ", description='" + mTaskName + '\'' +
@@ -121,7 +118,7 @@ public abstract class TasksViewState {
         @Override
         public String toString() {
             return "EmptyState{" +
-                    "type=" + type +
+                    "type=" + mType +
                     '}';
         }
     }

@@ -4,20 +4,14 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.cleanup.todoc.data.dao.ProjectDao;
 import com.cleanup.todoc.data.dao.TaskDao;
 import com.cleanup.todoc.data.entity.ProjectEntity;
 import com.cleanup.todoc.data.entity.ProjectTasksRelation;
 import com.cleanup.todoc.data.entity.TaskEntity;
-import com.cleanup.todoc.utils.Mock;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
-import java.util.Random;
 
 /**
  * A Repository is a source of data. In this project, we are using the LiveData to stream our data through
@@ -25,14 +19,12 @@ import java.util.Random;
  * and handle the Thread switching itself, since the LiveData is always working on the Main Thread.
  */
 public class ToDocRepository {
-    private static ToDocRepository sToDocRepository;
     @NonNull
     private final BuildConfigResolver mBuildConfigResolver;
     private final TaskDao mTaskDao;
     private final ProjectDao mProjectDao;
-    private final MutableLiveData<List<ProjectEntity>> listProjectMLE = new MutableLiveData<>();
 
-    public ToDocRepository(ProjectDao projectDao, TaskDao taskDao, BuildConfigResolver buildConfigResolver) {
+    public ToDocRepository(ProjectDao projectDao, TaskDao taskDao, @NonNull BuildConfigResolver buildConfigResolver) {
         this.mTaskDao = taskDao;
         this.mProjectDao = projectDao;
         this.mBuildConfigResolver = buildConfigResolver;

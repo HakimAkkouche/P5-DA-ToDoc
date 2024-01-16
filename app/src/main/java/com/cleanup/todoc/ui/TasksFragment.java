@@ -31,7 +31,7 @@ public class TasksFragment extends Fragment implements NavigationListener {
         return new TasksFragment();
     }
 
-    private TasksViewModel tasksViewModel;
+    private TasksViewModel mTasksViewModel;
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -44,14 +44,14 @@ public class TasksFragment extends Fragment implements NavigationListener {
 
         // Inflate the layout for this fragment
         FragmentTasksBinding binding = FragmentTasksBinding.inflate(inflater, container, false);
-        tasksViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(TasksViewModel.class);
+        mTasksViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(TasksViewModel.class);
 
-        TasksAdapter tasksAdapter = new TasksAdapter(taskId -> tasksViewModel.onDeleteTaskButtonClicked(taskId));
+        TasksAdapter tasksAdapter = new TasksAdapter(taskId -> mTasksViewModel.onDeleteTaskButtonClicked(taskId));
 
         binding.listTasks.setAdapter(tasksAdapter);
         binding.fabAddTask.setOnClickListener(v -> displayAddTaskDialog());
 
-        tasksViewModel.getViewStateLiveData().observe(getViewLifecycleOwner(), tasksViewStates -> {
+        mTasksViewModel.getViewStateLiveData().observe(getViewLifecycleOwner(), tasksViewStates -> {
             tasksAdapter.submitList(tasksViewStates);
         });
 
@@ -96,20 +96,20 @@ public class TasksFragment extends Fragment implements NavigationListener {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.sort_alphabetical){
-            tasksViewModel.onAlphabeticalSortAscClicked();
+            mTasksViewModel.onAlphabeticalSortAscClicked();
         } else if (item.getItemId() == R.id.sort_alphabetical_inverted) {
-            tasksViewModel.onAlphabeticalSortDescClicked();
+            mTasksViewModel.onAlphabeticalSortDescClicked();
         } else if (item.getItemId() == R.id.sort_oldest_first) {
-            tasksViewModel.onChronologicalSortAscClicked();
+            mTasksViewModel.onChronologicalSortAscClicked();
         } else if (item.getItemId() == R.id.sort_recent_first) {
-            tasksViewModel.onChronologicalSortDescClicked();
+            mTasksViewModel.onChronologicalSortDescClicked();
         } else if (item.getItemId() == R.id.sort_by_project) {
-            tasksViewModel.onByProjectSortClicked();
+            mTasksViewModel.onByProjectSortClicked();
         }
         return super.onOptionsItemSelected(item);
     }
     /**
-     * Shows the Dialog for adding a
+     * Shows the Dialog for adding a task
      */
     @Override
     public void displayAddTaskDialog() {

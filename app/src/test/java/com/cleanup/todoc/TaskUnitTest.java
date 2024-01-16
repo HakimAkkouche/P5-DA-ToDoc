@@ -8,8 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,8 +16,6 @@ import java.util.TreeSet;
 import java.util.concurrent.Executor;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 
 import android.graphics.Color;
@@ -36,17 +32,15 @@ import com.cleanup.todoc.data.entity.TaskEntity;
 import com.cleanup.todoc.ui.viewmodel.TasksViewModel;
 import com.cleanup.todoc.ui.viewmodel.TasksViewState;
 import com.cleanup.todoc.utils.LiveDataTestUtils;
-import com.cleanup.todoc.utils.Mock;
 import com.cleanup.todoc.utils.TestExecutor;
 
 /**
  * Unit tests for tasks
  *
- * @author Gaëtan HERFRAY
+ * @author Hakim AKKOUCHE
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TaskUnitTest {
-
 
     private static final int NB_PROJECT_TASKS_COUNT = 3;
 
@@ -74,7 +68,7 @@ public class TaskUnitTest {
 
         projectTasksRelationMutableLiveData.setValue(getDefaultProjectTasksRelation());
 
-        tasksViewModel = new TasksViewModel(toDocRepository, buildConfigResolver, executor);
+        tasksViewModel = new TasksViewModel(toDocRepository, executor);
 
         Mockito.verify(toDocRepository).getAllTasksProjectLiveData();
     }
@@ -130,7 +124,7 @@ public class TaskUnitTest {
 
         List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
 
-        assertEquals(getDefaultTaskViewStatesSort(), tasksViewStates);
+        assertEquals(getTaskViewStatesAlphabeticalAsc(), tasksViewStates);
     }
     @Test
     public void sortChronologicalDesc() {
@@ -186,7 +180,7 @@ public class TaskUnitTest {
             for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
                 idTask++;
                 tasksViewStates.add(
-                        new TasksViewState.Task( i, BASE_PROJECT_NAME + i, COLORS[i], idTask,
+                        new TasksViewState.Task( BASE_PROJECT_NAME + i, COLORS[i], idTask,
                                 BASE_TASK_NAME + idTask,
                                 DATETIME + idTask
                         )
@@ -201,14 +195,11 @@ public class TaskUnitTest {
         List<TasksViewState> taskViewStates = new ArrayList<>();
 
         int idTask = 0;
-
         for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
-
             for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
                 idTask++;
-
                 taskViewStates.add(
-                        new TasksViewState.Task(i, BASE_PROJECT_NAME + i, COLORS[i], idTask,
+                        new TasksViewState.Task(BASE_PROJECT_NAME + i, COLORS[i], idTask,
                                 BASE_TASK_NAME + idTask,
                                 DATETIME + idTask
                         )
@@ -223,21 +214,40 @@ public class TaskUnitTest {
     private List<TasksViewState> getTaskViewStatesAlphabeticalDesc() {
         List<TasksViewState> taskViewStates = new ArrayList<>();
 
-        int idTask = NB_PROJECT_TASKS_COUNT*NB_PROJECT_TASKS_COUNT;
-
-        for (int i = NB_PROJECT_TASKS_COUNT; i >0; i--) {
-
-            for (int j = NB_PROJECT_TASKS_COUNT; j > 0; j--) {
-
-                taskViewStates.add(
-                        new TasksViewState.Task(i, BASE_PROJECT_NAME + i,idTask, COLORS[i-1],
+        int idTask = 0;
+        Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o2.getCreationTimestamp(), o1.getCreationTimestamp()));
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                set.add(
+                        new TasksViewState.Task( BASE_PROJECT_NAME + i,COLORS[i], idTask,
                                 BASE_TASK_NAME + idTask,
                                 DATETIME + idTask
                         )
                 );
-                idTask--;
             }
         }
+        taskViewStates.addAll(set);
+        return taskViewStates;
+    }
+    @NonNull
+    private List<TasksViewState> getTaskViewStatesAlphabeticalAsc() {
+        List<TasksViewState> taskViewStates = new ArrayList<>();
+
+        int idTask = 0;
+        Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o1.getCreationTimestamp(), o2.getCreationTimestamp()));
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                set.add(
+                        new TasksViewState.Task( BASE_PROJECT_NAME + i,COLORS[i], idTask,
+                                BASE_TASK_NAME + idTask,
+                                DATETIME + idTask
+                        )
+                );
+            }
+        }
+        taskViewStates.addAll(set);
         return taskViewStates;
     }
 }

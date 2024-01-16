@@ -227,7 +227,7 @@ public class AddTaskViewModelTest {
         List<ProjectEntity> projectEntities = new ArrayList<>();
 
         for (int i = 0; i < NB_PROJECT_COUNT; i++) {
-            projectEntities.add(new ProjectEntity(i, BASE_PROJECT_NAME + i, i));
+            projectEntities.add(new ProjectEntity(i, BASE_PROJECT_NAME + i, COLORS[i]));
         }
 
         return projectEntities;
@@ -238,7 +238,7 @@ public class AddTaskViewModelTest {
         List<AddTaskViewStateItem> addTaskViewStateItems = new ArrayList<>();
 
         for (int i = 0; i < NB_PROJECT_COUNT; i++) {
-            addTaskViewStateItems.add(new AddTaskViewStateItem(i, i, BASE_PROJECT_NAME + i));
+            addTaskViewStateItems.add(new AddTaskViewStateItem(i, COLORS[i], BASE_PROJECT_NAME + i));
         }
         return addTaskViewStateItems;
     }

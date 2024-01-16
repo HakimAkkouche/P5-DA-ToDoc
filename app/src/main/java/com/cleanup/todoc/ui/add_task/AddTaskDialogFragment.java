@@ -15,13 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.cleanup.todoc.R;
 import com.cleanup.todoc.ViewModelFactory;
 import com.cleanup.todoc.databinding.DialogAddTaskBinding;
 
 public class AddTaskDialogFragment extends DialogFragment {
-
-    private AddTaskViewModel mViewModel;
 
     public static AddTaskDialogFragment newInstance() {
         return new AddTaskDialogFragment();

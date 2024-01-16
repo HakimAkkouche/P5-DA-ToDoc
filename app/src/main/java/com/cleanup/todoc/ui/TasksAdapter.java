@@ -20,10 +20,9 @@ import java.util.List;
 /**
  * <p>Adapter which handles the list of tasks to display in the dedicated RecyclerView.</p>
  *
- * @author Gaëtan HERFRAY
+ * @author Hakim AKKOUCHE
  */
 public class TasksAdapter extends ListAdapter<TasksViewState, RecyclerView.ViewHolder> {
-
 
     /**
      * The listener for when a task needs to be deleted

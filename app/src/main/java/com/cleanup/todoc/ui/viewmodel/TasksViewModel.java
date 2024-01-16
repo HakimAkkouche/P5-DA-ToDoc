@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.cleanup.todoc.data.BuildConfigResolver;
@@ -22,22 +21,18 @@ import java.util.concurrent.Executor;
 public class TasksViewModel extends ViewModel {
     private final ToDocRepository mToDocRepository;
     private final Executor mExecutor;
-    private final BuildConfigResolver mBuildConfigResolver;
+    private final MediatorLiveData<List<TasksViewState>> mViewStateMediatorLiveData = new MediatorLiveData<>();
+    private final MutableLiveData<TaskSortingType> mTaskSortingTypeMutableLiveData = new MutableLiveData<>();
 
-    private final MediatorLiveData<List<TasksViewState>> viewStateMediatorLiveData = new MediatorLiveData<>();
-
-    private final MutableLiveData<TaskSortingType> taskSortingTypeMutableLiveData = new MutableLiveData<>();
-
-    public TasksViewModel(ToDocRepository toDocRepository, BuildConfigResolver buildConfigResolver, Executor executor) {
+    public TasksViewModel(ToDocRepository toDocRepository, Executor executor) {
         mToDocRepository = toDocRepository;
-        mBuildConfigResolver = buildConfigResolver;
         mExecutor = executor;
 
         LiveData<List<ProjectTasksRelation>> projectsTasksLiveData = mToDocRepository.getAllTasksProjectLiveData();
 
-        viewStateMediatorLiveData.addSource(projectsTasksLiveData, projectsTasks ->
-                combine(projectsTasks, taskSortingTypeMutableLiveData.getValue()));
-        viewStateMediatorLiveData.addSource(taskSortingTypeMutableLiveData, taskSortingType ->
+        mViewStateMediatorLiveData.addSource(projectsTasksLiveData, projectsTasks ->
+                combine(projectsTasks, mTaskSortingTypeMutableLiveData.getValue()));
+        mViewStateMediatorLiveData.addSource(mTaskSortingTypeMutableLiveData, taskSortingType ->
                 combine(projectsTasksLiveData.getValue(), taskSortingType)
         );
 
@@ -102,12 +97,11 @@ public class TasksViewModel extends ViewModel {
             taskViewStates.add(new TasksViewState.EmptyState());
         }
 
-        viewStateMediatorLiveData.setValue(taskViewStates);
+        mViewStateMediatorLiveData.setValue(taskViewStates);
     }
 
     private TasksViewState.Task mapItem(ProjectTasksRelation projectWithTask, TaskEntity taskEntity) {
         return new TasksViewState.Task(
-                projectWithTask.getProjectEntity().getIdProject(),
                 projectWithTask.getProjectEntity().getNameProject(),
                 projectWithTask.getProjectEntity().getColorProject(),
                 taskEntity.getIdTask(),
@@ -116,20 +110,20 @@ public class TasksViewModel extends ViewModel {
         );
     }
     public void onAlphabeticalSortAscClicked(){
-        taskSortingTypeMutableLiveData.setValue(TaskSortingType.ALPHABETICAL_ASC);
+        mTaskSortingTypeMutableLiveData.setValue(TaskSortingType.ALPHABETICAL_ASC);
     }
     public void onAlphabeticalSortDescClicked(){
-        taskSortingTypeMutableLiveData.setValue(TaskSortingType.ALPHABETICAL_DESC);
+        mTaskSortingTypeMutableLiveData.setValue(TaskSortingType.ALPHABETICAL_DESC);
     }
     public void onChronologicalSortAscClicked(){
-        taskSortingTypeMutableLiveData.setValue(TaskSortingType.CHRONOLOGICAL_ASC);
+        mTaskSortingTypeMutableLiveData.setValue(TaskSortingType.CHRONOLOGICAL_ASC);
 
     }
     public void onChronologicalSortDescClicked(){
-        taskSortingTypeMutableLiveData.setValue(TaskSortingType.CHRONOLOGICAL_DESC);
+        mTaskSortingTypeMutableLiveData.setValue(TaskSortingType.CHRONOLOGICAL_DESC);
     }
     public void onByProjectSortClicked(){
-        taskSortingTypeMutableLiveData.setValue(TaskSortingType.PROJECT_SORT);
+        mTaskSortingTypeMutableLiveData.setValue(TaskSortingType.PROJECT_SORT);
     }
 
     public void onDeleteTaskButtonClicked(long taskId) {
@@ -139,12 +133,6 @@ public class TasksViewModel extends ViewModel {
 
     @NonNull
     public LiveData<List<TasksViewState>> getViewStateLiveData() {
-        return viewStateMediatorLiveData;
+        return mViewStateMediatorLiveData;
     }
-
-/*    public void onAddButtonLongClicked() {
-        if (mBuildConfigResolver.isDebug()) {
-            mExecutor.execute(() -> mToDocRepository.addRandomTask());
-        }
-    }*/
 }

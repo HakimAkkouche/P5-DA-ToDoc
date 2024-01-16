@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.cleanup.todoc.MainApplication;
 import com.cleanup.todoc.data.BuildConfigResolver;
 import com.cleanup.todoc.data.ToDocDatabase;
 import com.cleanup.todoc.data.ToDocRepository;
@@ -36,24 +35,22 @@ import java.util.concurrent.Executors;
  */
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
-    private static ViewModelFactory factory;
+    private static ViewModelFactory mFactory;
     private final BuildConfigResolver mBuildConfigResolver = new BuildConfigResolver();
-
     private final ToDocRepository mToDocRepository;
     private final Executor mExecutor = Executors.newFixedThreadPool(4);
     private final Executor mMainThreadExecutor = new MainThreadExecutor();
 
     public static ViewModelFactory getInstance() {
-        if (factory == null) {
+        if (mFactory == null) {
             synchronized (ViewModelFactory.class) {
-                if (factory == null) {
-                    factory = new ViewModelFactory();
+                if (mFactory == null) {
+                    mFactory = new ViewModelFactory();
                 }
             }
         }
-        return factory;
+        return mFactory;
     }
-
 
     private ViewModelFactory() {
         Application mainApplication = MainApplication.getApplication();
@@ -67,7 +64,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass.isAssignableFrom(TasksViewModel.class)) {
-            return (T) new TasksViewModel(mToDocRepository, mBuildConfigResolver, mExecutor);
+            return (T) new TasksViewModel(mToDocRepository, mExecutor);
         } else if (modelClass.isAssignableFrom(AddTaskViewModel.class)) {
             return (T) new AddTaskViewModel(
                     MainApplication.getApplication(),

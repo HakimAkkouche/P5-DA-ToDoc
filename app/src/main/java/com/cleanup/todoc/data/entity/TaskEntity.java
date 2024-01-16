@@ -1,7 +1,5 @@
 package com.cleanup.todoc.data.entity;
 
-import android.speech.SpeechRecognizer;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -28,7 +26,7 @@ public class TaskEntity {
     @NonNull
     private final String taskName;
 
-    @NonNull
+
     private final long creationTimestamp;
 
     @Ignore
@@ -82,6 +80,7 @@ public class TaskEntity {
         return Objects.hash(idTask, idProject, taskName, creationTimestamp);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "TaskEntity{" +

@@ -28,49 +28,49 @@ import java.util.concurrent.Executor;
 public class AddTaskViewModel extends ViewModel {
 
     @NonNull
-    private final Application application;
+    private final Application mApplication;
     @NonNull
-    private final ToDocRepository taskRepository;
+    private final ToDocRepository mTaskRepository;
     @NonNull
-    private final BuildConfigResolver buildConfigResolver;
+    private final BuildConfigResolver mBuildConfigResolver;
     @NonNull
-    private final Executor mainExecutor;
+    private final Executor mMainExecutor;
     @NonNull
-    private final Executor ioExecutor;
+    private final Executor mExecutor;
 
-    private final MediatorLiveData<AddTaskViewState> addTaskViewStateMediatorLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<AddTaskViewState> mAddTaskViewStateMediatorLiveData = new MediatorLiveData<>();
 
-    private final MutableLiveData<Boolean> isAddingTaskInDatabaseMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> mIsAddingTaskInDatabaseMutableLiveData = new MutableLiveData<>();
 
-    private final SingleLiveEvent<String> displayToastMessageSingleLiveEvent = new SingleLiveEvent<>();
+    private final SingleLiveEvent<String> mDisplayToastMessageSingleLiveEvent = new SingleLiveEvent<>();
 
-    private final EmptySingleLiveEvent dismissDialogSingleLiveEvent = new EmptySingleLiveEvent();
+    private final EmptySingleLiveEvent mDismissDialogSingleLiveEvent = new EmptySingleLiveEvent();
 
     @Nullable
-    private Long projectId;
+    private Long mProjectId;
     @Nullable
-    private String taskDescription;
+    private String mNameTask;
 
     public AddTaskViewModel(
             @NonNull Application application,
-            @NonNull ToDocRepository taskRepository,
+            @NonNull ToDocRepository toDocRepository,
             @NonNull BuildConfigResolver buildConfigResolver,
             @NonNull Executor mainExecutor,
-            @NonNull Executor ioExecutor
+            @NonNull Executor executor
     ) {
-        this.application = application;
-        this.taskRepository = taskRepository;
-        this.buildConfigResolver = buildConfigResolver;
-        this.mainExecutor = mainExecutor;
-        this.ioExecutor = ioExecutor;
+        this.mApplication = application;
+        this.mTaskRepository = toDocRepository;
+        this.mBuildConfigResolver = buildConfigResolver;
+        this.mMainExecutor = mainExecutor;
+        this.mExecutor = executor;
 
-        LiveData<List<ProjectEntity>> allProjectsLiveData = taskRepository.getAllProjectsLiveData();
+        LiveData<List<ProjectEntity>> allProjectsLiveData = toDocRepository.getAllProjectsLiveData();
 
-        addTaskViewStateMediatorLiveData.addSource(allProjectsLiveData, projectEntities ->
-                combine(projectEntities, isAddingTaskInDatabaseMutableLiveData.getValue())
+        mAddTaskViewStateMediatorLiveData.addSource(allProjectsLiveData, projectEntities ->
+                combine(projectEntities, mIsAddingTaskInDatabaseMutableLiveData.getValue())
         );
 
-        addTaskViewStateMediatorLiveData.addSource(isAddingTaskInDatabaseMutableLiveData, isAddingTaskInDatabase ->
+        mAddTaskViewStateMediatorLiveData.addSource(mIsAddingTaskInDatabaseMutableLiveData, isAddingTaskInDatabase ->
                 combine(allProjectsLiveData.getValue(), isAddingTaskInDatabase)
         );
     }
@@ -92,7 +92,7 @@ public class AddTaskViewModel extends ViewModel {
             );
         }
 
-        addTaskViewStateMediatorLiveData.setValue(
+        mAddTaskViewStateMediatorLiveData.setValue(
                 new AddTaskViewState(
                         addTaskViewStateItems,
                         isAddingTaskInDatabase != null && isAddingTaskInDatabase
@@ -101,46 +101,46 @@ public class AddTaskViewModel extends ViewModel {
     }
 
     public LiveData<AddTaskViewState> getAddTaskViewStateLiveData() {
-        return addTaskViewStateMediatorLiveData;
+        return mAddTaskViewStateMediatorLiveData;
     }
 
     public SingleLiveEvent<String> getDisplayToastMessageSingleLiveEvent() {
-        return displayToastMessageSingleLiveEvent;
+        return mDisplayToastMessageSingleLiveEvent;
     }
 
     public EmptySingleLiveEvent getDismissDialogSingleLiveEvent() {
-        return dismissDialogSingleLiveEvent;
+        return mDismissDialogSingleLiveEvent;
     }
 
     public void onProjectSelected(long projectId) {
-        this.projectId = projectId;
+        this.mProjectId = projectId;
     }
 
-    public void onTaskDescriptionChanged(String taskDescription) {
-        this.taskDescription = taskDescription;
+    public void onTaskDescriptionChanged(String nameTask) {
+        this.mNameTask = nameTask;
     }
 
     public void onOkButtonClicked() {
-        if (projectId != null && taskDescription != null && !taskDescription.isEmpty()) {
-            isAddingTaskInDatabaseMutableLiveData.setValue(true);
+        if (mProjectId != null && mNameTask != null && !mNameTask.isEmpty()) {
+            mIsAddingTaskInDatabaseMutableLiveData.setValue(true);
 
-            ioExecutor.execute(() -> {
+            mExecutor.execute(() -> {
 
                 try {
-                    taskRepository.addTask(new TaskEntity(projectId, taskDescription, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
+                    mTaskRepository.addTask(new TaskEntity(mProjectId, mNameTask, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
 
-                    mainExecutor.execute(() -> dismissDialogSingleLiveEvent.call());
+                    mMainExecutor.execute(() -> mDismissDialogSingleLiveEvent.call());
                 } catch (SQLiteException e) {
-                    if (buildConfigResolver.isDebug()) {
+                    if (mBuildConfigResolver.isDebug()) {
                         e.printStackTrace();
                     }
 
-                    mainExecutor.execute(() ->
-                            displayToastMessageSingleLiveEvent.setValue(application.getString(R.string.error_add_task))
+                    mMainExecutor.execute(() ->
+                            mDisplayToastMessageSingleLiveEvent.setValue(mApplication.getString(R.string.error_add_task))
                     );
                 }
 
-                mainExecutor.execute(() -> isAddingTaskInDatabaseMutableLiveData.setValue(false));
+                mMainExecutor.execute(() -> mIsAddingTaskInDatabaseMutableLiveData.setValue(false));
             });
         }
     }

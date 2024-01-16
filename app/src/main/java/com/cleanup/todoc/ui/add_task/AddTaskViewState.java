@@ -11,22 +11,22 @@ import java.util.Objects;
 public class AddTaskViewState {
 
     @NonNull
-    private final List<AddTaskViewStateItem> addTaskViewStateItems;
+    private final List<AddTaskViewStateItem> mAddTaskViewStateItems;
 
-    private final boolean isProgressBarVisible;
+    private final boolean mIsProgressBarVisible;
 
     public AddTaskViewState(@NonNull List<AddTaskViewStateItem> addTaskViewStateItems, boolean isProgressBarVisible) {
-        this.addTaskViewStateItems = addTaskViewStateItems;
-        this.isProgressBarVisible = isProgressBarVisible;
+        this.mAddTaskViewStateItems = addTaskViewStateItems;
+        this.mIsProgressBarVisible = isProgressBarVisible;
     }
 
     @NonNull
     public List<AddTaskViewStateItem> getAddTaskViewStateItems() {
-        return addTaskViewStateItems;
+        return mAddTaskViewStateItems;
     }
 
     public boolean isProgressBarVisible() {
-        return isProgressBarVisible;
+        return mIsProgressBarVisible;
     }
 
     @Generated
@@ -35,14 +35,14 @@ public class AddTaskViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AddTaskViewState that = (AddTaskViewState) o;
-        return isProgressBarVisible == that.isProgressBarVisible &&
-                addTaskViewStateItems.equals(that.addTaskViewStateItems);
+        return mIsProgressBarVisible == that.mIsProgressBarVisible &&
+                mAddTaskViewStateItems.equals(that.mAddTaskViewStateItems);
     }
 
     @Generated
     @Override
     public int hashCode() {
-        return Objects.hash(addTaskViewStateItems, isProgressBarVisible);
+        return Objects.hash(mAddTaskViewStateItems, mIsProgressBarVisible);
     }
 
     @NonNull
@@ -50,8 +50,8 @@ public class AddTaskViewState {
     @Override
     public String toString() {
         return "AddTaskViewState{" +
-                "addTaskViewStateItems=" + addTaskViewStateItems +
-                ", isProgressBarVisible=" + isProgressBarVisible +
+                "addTaskViewStateItems=" + mAddTaskViewStateItems +
+                ", isProgressBarVisible=" + mIsProgressBarVisible +
                 '}';
     }
 }
