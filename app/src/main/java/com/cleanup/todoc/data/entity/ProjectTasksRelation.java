@@ -15,8 +15,8 @@ public class ProjectTasksRelation {
 
     @NonNull
     @Relation(
-            parentColumn = "idProject",
-            entityColumn = "idProject"
+            parentColumn = "mIdProject",
+            entityColumn = "mIdProject"
     )
     private final List<TaskEntity> taskEntities;
 

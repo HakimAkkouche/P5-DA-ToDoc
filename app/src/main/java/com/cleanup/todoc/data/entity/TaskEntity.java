@@ -12,22 +12,22 @@ import java.util.Objects;
 @Entity(tableName = "Task",
         foreignKeys = @ForeignKey(
         entity = ProjectEntity.class,
-        parentColumns = "idProject",
-        childColumns = "idProject"
+        parentColumns = "mIdProject",
+        childColumns = "mIdProject"
         )
 )
 public class TaskEntity {
     @PrimaryKey(autoGenerate = true)
-    private final long idTask;
+    private final long mIdTask;
 
     @ColumnInfo(index = true)
-    private final long idProject;
+    private final long mIdProject;
 
     @NonNull
-    private final String taskName;
+    private final String mTaskName;
 
 
-    private final long creationTimestamp;
+    private final long mCreationTimestamp;
 
     @Ignore
     public TaskEntity(long projectId, @NonNull String taskDescription, long creationTimestamp) {
@@ -42,27 +42,27 @@ public class TaskEntity {
      * @param creationTimestamp creation time
      */
     public TaskEntity(long idTask, long idProject, @NonNull String taskName, long creationTimestamp) {
-        this.idTask = idTask;
-        this.idProject = idProject;
-        this.taskName = taskName;
-        this.creationTimestamp = creationTimestamp;
+        this.mIdTask = idTask;
+        this.mIdProject = idProject;
+        this.mTaskName = taskName;
+        this.mCreationTimestamp = creationTimestamp;
     }
 
     public long getIdTask() {
-        return idTask;
+        return mIdTask;
     }
 
     public long getIdProject() {
-        return idProject;
+        return mIdProject;
     }
 
     @NonNull
     public String getTaskName() {
-        return taskName;
+        return mTaskName;
     }
 
     public long getCreationTimestamp() {
-        return creationTimestamp;
+        return mCreationTimestamp;
     }
 
     @Override
@@ -70,24 +70,24 @@ public class TaskEntity {
         if (this == o) return true;
         if (!(o instanceof TaskEntity)) return false;
         TaskEntity that = (TaskEntity) o;
-        return idTask == that.idTask
-                && idProject == that.idProject
-                && Objects.equals(taskName, that.taskName);
+        return mIdTask == that.mIdTask
+                && mIdProject == that.mIdProject
+                && Objects.equals(mTaskName, that.mTaskName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idTask, idProject, taskName, creationTimestamp);
+        return Objects.hash(mIdTask, mIdProject, mTaskName, mCreationTimestamp);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "TaskEntity{" +
-                "idTask=" + idTask +
-                ", idProject=" + idProject +
-                ", taskName='" + taskName + '\'' +
-                ", creationTimestamp=" + creationTimestamp +
+                "idTask=" + mIdTask +
+                ", idProject=" + mIdProject +
+                ", taskName='" + mTaskName + '\'' +
+                ", creationTimestamp=" + mCreationTimestamp +
                 '}';
     }
 }

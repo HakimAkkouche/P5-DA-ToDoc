@@ -16,6 +16,6 @@ public interface TaskDao {
     LiveData<List<ProjectTasksRelation>> getAllProjectTaskRelated();
     @Insert
     long insert(TaskEntity taskEntity);
-    @Query("delete from Task where idTask=:idTask")
+    @Query("delete from Task where mIdTask=:idTask")
     int delete(long idTask);
 }
