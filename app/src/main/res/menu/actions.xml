@@ -30,6 +30,7 @@
                 android:id="@+id/sort_by_project"
                 android:title="@string/sort_by_project"
                 app:showAsAction="never|withText" />
+
         </menu>
     </item>
 
