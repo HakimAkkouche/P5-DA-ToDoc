@@ -2,27 +2,36 @@
   "data": [
     {
       "backgroundTint": "#EADAD1",
+
       "taskName": "Implémenter une base de donnée Room",
+
       "projectName": "Projet Tartampion"
     },
     {
       "backgroundTint": "#B4CDBA",
+
       "taskName": "Générer la javadoc",
+
       "projectName": "Projet Lucidia"
     },
     {
       "backgroundTint": "#B4CDBA",
+
       "taskName": "Implémenter les tests unitaires",
+
       "projectName": "Projet Lucidia"
     },
     {
       "backgroundTint": "#EADAD1",
+
       "taskName": "Implémenter les tests instrumentalisés",
+
       "projectName": "Projet Tartampion"
     },
     {
       "backgroundTint": "#A3CED2",
       "taskName": "Mettre en place une architecure MVVM",
+
       "projectName": "Projet Circus"
     }
   ]

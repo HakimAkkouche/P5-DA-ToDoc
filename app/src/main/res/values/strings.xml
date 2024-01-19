@@ -5,6 +5,7 @@
 
     <string name="sort_alphabetical">A -&gt; Z</string>
     <string name="sort_alphabetical_invert">Z -&gt; A</string>
+
     <string name="sort_oldest_first">Older first</string>
     <string name="sort_recent_first">Newer first</string>
     <string name="sort_by_project">By project</string>
@@ -22,4 +23,5 @@
     <string name="error_add_task">Error: the task has not been added</string>
     <string name="project">Project</string>
     <string name="new_task">New task</string>
+
 </resources>

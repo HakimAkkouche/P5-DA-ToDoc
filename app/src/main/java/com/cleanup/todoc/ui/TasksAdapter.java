@@ -1,5 +1,6 @@
 package com.cleanup.todoc.ui;
 
+
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -13,6 +14,7 @@ import com.cleanup.todoc.databinding.ItemTaskBinding;
 import com.cleanup.todoc.databinding.ItemTaskEmptyBinding;
 import com.cleanup.todoc.ui.viewmodel.TasksViewState;
 
+
 import java.util.List;
 
 /**
@@ -22,20 +24,24 @@ import java.util.List;
  */
 public class TasksAdapter extends ListAdapter<TasksViewState, RecyclerView.ViewHolder> {
 
+
     /**
      * The listener for when a task needs to be deleted
      */
     @NonNull
     private final TaskListener mTaskListener;
 
+
     /**
      * Instantiates a new TasksAdapter.
      *
+
      * @param taskListener the list of tasks the adapter deals with to set
      */
     public TasksAdapter(@NonNull TaskListener taskListener) {
         super(new TaskDiffCallback());
         this.mTaskListener = taskListener;
+
     }
 
     @NonNull
@@ -87,13 +93,10 @@ public class TasksAdapter extends ListAdapter<TasksViewState, RecyclerView.ViewH
     @Override
     public int getItemViewType(int position) {
         return getItem(position).getType().ordinal();
+
     }
 
-    /**
-     * <p>ViewHolder for task items in the tasks list</p>
-     *
-     * @author Gaëtan HERFRAY
-     */
+
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         private final ItemTaskBinding mBinding;
         /**
