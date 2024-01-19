@@ -2,27 +2,36 @@
   "data": [
     {
       "backgroundTint": "#EADAD1",
-      "taskName": "Ajouter un header sur le site",
+
+      "taskName": "Implémenter une base de donnée Room",
+
       "projectName": "Projet Tartampion"
     },
     {
       "backgroundTint": "#B4CDBA",
-      "taskName": "Modifier la couleur des textes",
+
+      "taskName": "Générer la javadoc",
+
       "projectName": "Projet Lucidia"
     },
     {
       "backgroundTint": "#B4CDBA",
-      "taskName": "Appeler le client",
+
+      "taskName": "Implémenter les tests unitaires",
+
       "projectName": "Projet Lucidia"
     },
     {
       "backgroundTint": "#EADAD1",
-      "taskName": "Intégrer Google Analytics",
+
+      "taskName": "Implémenter les tests instrumentalisés",
+
       "projectName": "Projet Tartampion"
     },
     {
       "backgroundTint": "#A3CED2",
-      "taskName": "Ajouter un header sur le site",
+      "taskName": "Mettre en place une architecure MVVM",
+
       "projectName": "Projet Circus"
     }
   ]

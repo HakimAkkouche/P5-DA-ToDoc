@@ -1,164 +1,135 @@
 package com.cleanup.todoc.ui;
 
-import android.content.res.ColorStateList;
+
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cleanup.todoc.R;
-import com.cleanup.todoc.model.Project;
-import com.cleanup.todoc.model.Task;
+import com.cleanup.todoc.databinding.ItemTaskBinding;
+import com.cleanup.todoc.databinding.ItemTaskEmptyBinding;
+import com.cleanup.todoc.ui.viewmodel.TasksViewState;
+
 
 import java.util.List;
 
 /**
  * <p>Adapter which handles the list of tasks to display in the dedicated RecyclerView.</p>
  *
- * @author Gaëtan HERFRAY
+ * @author Hakim AKKOUCHE
  */
-public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHolder> {
-    /**
-     * The list of tasks the adapter deals with
-     */
-    @NonNull
-    private List<Task> tasks;
+public class TasksAdapter extends ListAdapter<TasksViewState, RecyclerView.ViewHolder> {
+
 
     /**
      * The listener for when a task needs to be deleted
      */
     @NonNull
-    private final DeleteTaskListener deleteTaskListener;
+    private final TaskListener mTaskListener;
+
 
     /**
      * Instantiates a new TasksAdapter.
      *
-     * @param tasks the list of tasks the adapter deals with to set
-     */
-    TasksAdapter(@NonNull final List<Task> tasks, @NonNull final DeleteTaskListener deleteTaskListener) {
-        this.tasks = tasks;
-        this.deleteTaskListener = deleteTaskListener;
-    }
 
-    /**
-     * Updates the list of tasks the adapter deals with.
-     *
-     * @param tasks the list of tasks the adapter deals with to set
+     * @param taskListener the list of tasks the adapter deals with to set
      */
-    void updateTasks(@NonNull final List<Task> tasks) {
-        this.tasks = tasks;
-        notifyDataSetChanged();
+    public TasksAdapter(@NonNull TaskListener taskListener) {
+        super(new TaskDiffCallback());
+        this.mTaskListener = taskListener;
+
     }
 
     @NonNull
     @Override
-    public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_task, viewGroup, false);
-        return new TaskViewHolder(view, deleteTaskListener);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        switch (TasksViewState.Type.values()[viewType]) {
+            case TASK:
+                return new TaskViewHolder(
+                        ItemTaskBinding.inflate(LayoutInflater.from(viewGroup.getContext()), viewGroup, false)
+                );
+            case EMPTY_STATE:
+                return new RecyclerView.ViewHolder(
+                        ItemTaskEmptyBinding.inflate(LayoutInflater.from(viewGroup.getContext()), viewGroup, false).getRoot()
+                ) {
+                };
+            default:
+                throw new IllegalStateException("Unknown viewType : " + viewType);
+        }
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull TaskViewHolder taskViewHolder, int position) {
-        taskViewHolder.bind(tasks.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return tasks.size();
-    }
-
-    /**
-     * Listener for deleting tasks
-     */
-    public interface DeleteTaskListener {
-        /**
-         * Called when a task needs to be deleted.
-         *
-         * @param task the task that needs to be deleted
-         */
-        void onDeleteTask(Task task);
-    }
 
     /**
-     * <p>ViewHolder for task items in the tasks list</p>
+     * Called by RecyclerView to display the data at the specified position. This method should
+     * update the contents of the {@link RecyclerView.ViewHolder#itemView} to reflect the item at the given
+     * position.
+     * <p>
+     * Note that unlike {@link ListView}, RecyclerView will not call this method
+     * again if the position of the item changes in the data set unless the item itself is
+     * invalidated or the new position cannot be determined. For this reason, you should only
+     * use the <code>position</code> parameter while acquiring the related data item inside
+     * this method and should not keep a copy of it. If you need the position of an item later
+     * on (e.g. in a click listener), use {@link RecyclerView.ViewHolder#getAdapterPosition()} which will
+     * have the updated adapter position.
+     * <p>
+     * Override {@link #onBindViewHolder(RecyclerView.ViewHolder, int, List)} instead if Adapter can
+     * handle efficient partial bind.
      *
-     * @author Gaëtan HERFRAY
+     * @param holder   The ViewHolder which should be updated to represent the contents of the
+     *                 item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
      */
-    class TaskViewHolder extends RecyclerView.ViewHolder {
-        /**
-         * The circle icon showing the color of the project
-         */
-        private final AppCompatImageView imgProject;
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof TaskViewHolder) {
+            ((TaskViewHolder) holder).bind((TasksViewState.Task) getItem(position), mTaskListener);
+        }
+    }
 
-        /**
-         * The TextView displaying the name of the task
-         */
-        private final TextView lblTaskName;
+    @Override
+    public int getItemViewType(int position) {
+        return getItem(position).getType().ordinal();
 
-        /**
-         * The TextView displaying the name of the project
-         */
-        private final TextView lblProjectName;
+    }
 
-        /**
-         * The delete icon
-         */
-        private final AppCompatImageView imgDelete;
 
-        /**
-         * The listener for when a task needs to be deleted
-         */
-        private final DeleteTaskListener deleteTaskListener;
-
+    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+        private final ItemTaskBinding mBinding;
         /**
          * Instantiates a new TaskViewHolder.
          *
-         * @param itemView the view of the task item
-         * @param deleteTaskListener the listener for when a task needs to be deleted to set
+         * @param binding the view of the task item
          */
-        TaskViewHolder(@NonNull View itemView, @NonNull DeleteTaskListener deleteTaskListener) {
-            super(itemView);
-
-            this.deleteTaskListener = deleteTaskListener;
-
-            imgProject = itemView.findViewById(R.id.img_project);
-            lblTaskName = itemView.findViewById(R.id.lbl_task_name);
-            lblProjectName = itemView.findViewById(R.id.lbl_project_name);
-            imgDelete = itemView.findViewById(R.id.img_delete);
-
-            imgDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final Object tag = view.getTag();
-                    if (tag instanceof Task) {
-                        TaskViewHolder.this.deleteTaskListener.onDeleteTask((Task) tag);
-                    }
-                }
-            });
+        TaskViewHolder(@NonNull ItemTaskBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
         }
 
-        /**
-         * Binds a task to the item view.
-         *
-         * @param task the task to bind in the item view
-         */
-        void bind(Task task) {
-            lblTaskName.setText(task.getName());
-            imgDelete.setTag(task);
+        public void bind(@NonNull TasksViewState.Task item, @NonNull TaskListener listener) {
+            mBinding.imgProject.setColorFilter(item.getProjectColor());
+            mBinding.lblProjectName.setText(item.getNameProject());
+            mBinding.lblTaskName.setText(item.getTaskName());
+            mBinding.imgDelete.setOnClickListener(v -> listener.onDeleteTaskButtonClicked(item.getTaskId()));
+        }
+    }
 
-            final Project taskProject = task.getProject();
-            if (taskProject != null) {
-                imgProject.setSupportImageTintList(ColorStateList.valueOf(taskProject.getColor()));
-                lblProjectName.setText(taskProject.getName());
-            } else {
-                imgProject.setVisibility(View.INVISIBLE);
-                lblProjectName.setText("");
-            }
+    public static class TaskDiffCallback extends DiffUtil.ItemCallback<TasksViewState> {
+        @Override
+        public boolean areItemsTheSame(@NonNull TasksViewState oldItem, @NonNull TasksViewState newItem) {
+            return (oldItem instanceof TasksViewState.Task && newItem instanceof TasksViewState.Task
+                            && ((TasksViewState.Task) oldItem).getTaskId() == ((TasksViewState.Task) newItem).getTaskId()
+            ) || (
+                    oldItem instanceof TasksViewState.EmptyState && newItem instanceof TasksViewState.EmptyState
+            );
+        }
 
+        @Override
+        public boolean areContentsTheSame(@NonNull TasksViewState oldItem, @NonNull TasksViewState newItem) {
+            return oldItem.equals(newItem);
         }
     }
 }

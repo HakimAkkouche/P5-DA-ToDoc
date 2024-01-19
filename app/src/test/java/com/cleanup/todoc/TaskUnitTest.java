@@ -1,101 +1,249 @@
 package com.cleanup.todoc;
 
-import com.cleanup.todoc.model.Task;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.Executor;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+
+import android.graphics.Color;
+
+import androidx.annotation.NonNull;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.MutableLiveData;
+
+import com.cleanup.todoc.data.ToDocRepository;
+import com.cleanup.todoc.data.entity.ProjectEntity;
+import com.cleanup.todoc.data.entity.ProjectTasksRelation;
+import com.cleanup.todoc.data.entity.TaskEntity;
+import com.cleanup.todoc.ui.viewmodel.TasksViewModel;
+import com.cleanup.todoc.ui.viewmodel.TasksViewState;
+import com.cleanup.todoc.utils.LiveDataTestUtils;
+import com.cleanup.todoc.utils.TestExecutor;
+
 
 /**
  * Unit tests for tasks
  *
- * @author Gaëtan HERFRAY
+ * @author Hakim AKKOUCHE
  */
+@RunWith(MockitoJUnitRunner.class)
 public class TaskUnitTest {
-    @Test
-    public void test_projects() {
-        final Task task1 = new Task(1, 1, "task 1", new Date().getTime());
-        final Task task2 = new Task(2, 2, "task 2", new Date().getTime());
-        final Task task3 = new Task(3, 3, "task 3", new Date().getTime());
-        final Task task4 = new Task(4, 4, "task 4", new Date().getTime());
 
-        assertEquals("Projet Tartampion", task1.getProject().getName());
-        assertEquals("Projet Lucidia", task2.getProject().getName());
-        assertEquals("Projet Circus", task3.getProject().getName());
-        assertNull(task4.getProject());
+    private static final int NB_PROJECT_TASKS_COUNT = 3;
+
+    private static final String BASE_PROJECT_NAME = "Project : ";
+    private static final String BASE_TASK_NAME = "Task : ";
+
+    private static final long DATETIME = 1704850881;
+
+    private static final int[] COLORS = new int[]{Color.parseColor("#3177E1"), Color.parseColor("#CE2BE1"), Color.parseColor("#7AE62D")};
+
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
+    private final ToDocRepository toDocRepository = Mockito.mock(ToDocRepository.class);
+    private final Executor executor = Mockito.spy(new TestExecutor());
+
+    private final MutableLiveData<List<ProjectTasksRelation>> projectTasksRelationMutableLiveData = new MutableLiveData<>();
+
+    private TasksViewModel tasksViewModel;
+
+    @Before
+    public void setup() {
+        Mockito.doReturn(projectTasksRelationMutableLiveData).when(toDocRepository).getAllTasksProjectLiveData();
+
+        projectTasksRelationMutableLiveData.setValue(getDefaultProjectTasksRelation());
+
+        tasksViewModel = new TasksViewModel(toDocRepository, executor);
+
+        Mockito.verify(toDocRepository).getAllTasksProjectLiveData();
+    }
+
+
+    @Test
+    public void basic_test() {
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
+
+        assertEquals(getDefaultTasksViewStates(), tasksViewStates);
+
+        Mockito.verify(executor, Mockito.never()).execute(any());
+        Mockito.verifyNoMoreInteractions(toDocRepository, executor);
     }
 
     @Test
-    public void test_az_comparator() {
-        final Task task1 = new Task(1, 1, "aaa", 123);
-        final Task task2 = new Task(2, 2, "zzz", 124);
-        final Task task3 = new Task(3, 3, "hhh", 125);
+    public void empty_tasks() {
+        projectTasksRelationMutableLiveData.setValue(new ArrayList<>());
 
-        final ArrayList<Task> tasks = new ArrayList<>();
-        tasks.add(task1);
-        tasks.add(task2);
-        tasks.add(task3);
-        Collections.sort(tasks, new Task.TaskAZComparator());
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
 
-        assertSame(tasks.get(0), task1);
-        assertSame(tasks.get(1), task3);
-        assertSame(tasks.get(2), task2);
+        assertEquals(Collections.singletonList(new TasksViewState.EmptyState()), tasksViewStates);
     }
 
     @Test
-    public void test_za_comparator() {
-        final Task task1 = new Task(1, 1, "aaa", 123);
-        final Task task2 = new Task(2, 2, "zzz", 124);
-        final Task task3 = new Task(3, 3, "hhh", 125);
+    public void sortByProject() {
+        tasksViewModel.onByProjectSortClicked();
 
-        final ArrayList<Task> tasks = new ArrayList<>();
-        tasks.add(task1);
-        tasks.add(task2);
-        tasks.add(task3);
-        Collections.sort(tasks, new Task.TaskZAComparator());
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
 
-        assertSame(tasks.get(0), task2);
-        assertSame(tasks.get(1), task3);
-        assertSame(tasks.get(2), task1);
+        assertEquals(getDefaultTaskViewStatesSort(), tasksViewStates);
     }
 
     @Test
-    public void test_recent_comparator() {
-        final Task task1 = new Task(1, 1, "aaa", 123);
-        final Task task2 = new Task(2, 2, "zzz", 124);
-        final Task task3 = new Task(3, 3, "hhh", 125);
+    public void sortAlphabeticalAsc() {
+        tasksViewModel.onAlphabeticalSortAscClicked();
 
-        final ArrayList<Task> tasks = new ArrayList<>();
-        tasks.add(task1);
-        tasks.add(task2);
-        tasks.add(task3);
-        Collections.sort(tasks, new Task.TaskRecentComparator());
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
 
-        assertSame(tasks.get(0), task3);
-        assertSame(tasks.get(1), task2);
-        assertSame(tasks.get(2), task1);
+        assertEquals(getDefaultTaskViewStatesSort(), tasksViewStates);
+    }
+    @Test
+    public void sortAlphabeticalDesc() {
+        tasksViewModel.onAlphabeticalSortDescClicked();
+
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
+
+        assertEquals(getTaskViewStatesAlphabeticalDesc(), tasksViewStates);
+    }
+    @Test
+    public void sortChronologicalAsc() {
+        tasksViewModel.onChronologicalSortAscClicked();
+
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
+
+        assertEquals(getTaskViewStatesAlphabeticalAsc(), tasksViewStates);
+    }
+    @Test
+    public void sortChronologicalDesc() {
+        tasksViewModel.onChronologicalSortDescClicked();
+
+        List<TasksViewState> tasksViewStates = LiveDataTestUtils.getValueForTesting(tasksViewModel.getViewStateLiveData());
+
+        assertEquals(getTaskViewStatesAlphabeticalDesc(), tasksViewStates);
     }
 
     @Test
-    public void test_old_comparator() {
-        final Task task1 = new Task(1, 1, "aaa", 123);
-        final Task task2 = new Task(2, 2, "zzz", 124);
-        final Task task3 = new Task(3, 3, "hhh", 125);
+    public void onDeleteTaskButtonClicked() {
+        long idTask = 3;
 
-        final ArrayList<Task> tasks = new ArrayList<>();
-        tasks.add(task1);
-        tasks.add(task2);
-        tasks.add(task3);
-        Collections.sort(tasks, new Task.TaskOldComparator());
+        tasksViewModel.onDeleteTaskButtonClicked(idTask);
 
-        assertSame(tasks.get(0), task1);
-        assertSame(tasks.get(1), task2);
-        assertSame(tasks.get(2), task3);
+        Mockito.verify(toDocRepository).deleteTask(idTask);
+        Mockito.verify(executor).execute(any());
+        Mockito.verifyNoMoreInteractions(toDocRepository,executor);
+    }
+
+    @NonNull
+    private List<ProjectTasksRelation> getDefaultProjectTasksRelation() {
+        List<ProjectTasksRelation> projectTasksRelations = new ArrayList<>();
+
+        int idTask = 0;
+
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+
+            ProjectEntity projectEntity = new ProjectEntity(i, BASE_PROJECT_NAME + i, COLORS[i]);
+            List<TaskEntity> taskEntities = new ArrayList<>();
+
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                taskEntities.add(
+                        new TaskEntity(idTask, i, BASE_TASK_NAME + idTask,
+                                DATETIME + idTask
+                        )
+                );
+            }
+            projectTasksRelations.add(new ProjectTasksRelation(projectEntity, taskEntities));
+        }
+        return projectTasksRelations;
+    }
+
+    @NonNull
+    private List<TasksViewState> getDefaultTasksViewStates() {
+        List<TasksViewState> tasksViewStates = new ArrayList<>();
+
+        int idTask = 0;
+
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                tasksViewStates.add(
+                        new TasksViewState.Task( BASE_PROJECT_NAME + i, COLORS[i], idTask,
+                                BASE_TASK_NAME + idTask,
+                                DATETIME + idTask
+                        )
+                );
+            }
+        }
+        return tasksViewStates;
+    }
+
+    @NonNull
+    private List<TasksViewState> getDefaultTaskViewStatesSort() {
+        List<TasksViewState> taskViewStates = new ArrayList<>();
+
+        int idTask = 0;
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                taskViewStates.add(
+                        new TasksViewState.Task(BASE_PROJECT_NAME + i, COLORS[i], idTask,
+                                BASE_TASK_NAME + idTask,
+                                DATETIME + idTask
+                        )
+                );
+            }
+        }
+
+        return taskViewStates;
+    }
+
+    @NonNull
+    private List<TasksViewState> getTaskViewStatesAlphabeticalDesc() {
+
+        int idTask = 0;
+        Set<TasksViewState.Task> set = new TreeSet<>((o1, o2) -> Long.compare(o2.getCreationTimestamp(), o1.getCreationTimestamp()));
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                set.add(
+                        new TasksViewState.Task( BASE_PROJECT_NAME + i,COLORS[i], idTask,
+                                BASE_TASK_NAME + idTask,
+                                DATETIME + idTask
+                        )
+                );
+            }
+        }
+        return new ArrayList<>(set);
+    }
+    @NonNull
+    private List<TasksViewState> getTaskViewStatesAlphabeticalAsc() {
+
+        int idTask = 0;
+        Set<TasksViewState.Task> set = new TreeSet<>(Comparator.comparingLong(TasksViewState.Task::getCreationTimestamp));
+        for (int i = 0; i < NB_PROJECT_TASKS_COUNT; i++) {
+            for (int j = 0; j < NB_PROJECT_TASKS_COUNT; j++) {
+                idTask++;
+                set.add(
+                        new TasksViewState.Task( BASE_PROJECT_NAME + i,COLORS[i], idTask,
+                                BASE_TASK_NAME + idTask,
+                                DATETIME + idTask
+                        )
+                );
+            }
+        }
+        return new ArrayList<>(set);
     }
 }

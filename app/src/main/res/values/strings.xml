@@ -5,15 +5,23 @@
 
     <string name="sort_alphabetical">A -&gt; Z</string>
     <string name="sort_alphabetical_invert">Z -&gt; A</string>
-    <string name="sort_oldest_first">Les plus anciens d’abord</string>
-    <string name="sort_recent_first">Les plus récents d’abord</string>
 
-    <string name="add_task">Ajouter une tâche</string>
-    <string name="add">Ajouter</string>
+    <string name="sort_oldest_first">Older first</string>
+    <string name="sort_recent_first">Newer first</string>
+    <string name="sort_by_project">By project</string>
+    <string name="sort_none">Reset filter</string>
 
-    <string name="no_task">Tu n’as aucune tâche à traiter</string>
+    <string name="add_task">Add a new task</string>
+    <string name="add">Add</string>
 
-    <string name="task_name_hint">Nom de la tâche</string>
+    <string name="no_task">You have no task left to do</string>
 
-    <string name="empty_task_name">Le nom de la tâche doit être renseigné</string>
+    <string name="task_name_hint">Task\'s name</string>
+
+    <string name="empty_task_name">The task\'s name must be filled</string>
+
+    <string name="error_add_task">Error: the task has not been added</string>
+    <string name="project">Project</string>
+    <string name="new_task">New task</string>
+
 </resources>

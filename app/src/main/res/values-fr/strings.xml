@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Todoc</string>
+
+    <string name="label_action_filter">Filtrer</string>
+
+    <string name="sort_alphabetical">A -&gt; Z</string>
+    <string name="sort_alphabetical_invert">Z -&gt; A</string>
+    <string name="sort_oldest_first">Date croissant</string>
+    <string name="sort_recent_first">Date décroissant</string>
+    <string name="sort_by_project">Par projet</string>
+    <string name="sort_none">Aucun trie</string>
+
+    <string name="add_task">Ajouter une tâche</string>
+    <string name="add">Ajouter</string>
+
+    <string name="no_task">Tu n’as aucune tâche à traiter</string>
+
+    <string name="task_name_hint">Nom de la tâche</string>
+
+    <string name="empty_task_name">Le nom de la tâche doit être renseigné</string>
+
+    <string name="error_add_task">Erreur: la tâche n\'a été ajouté</string>
+    <string name="project">Projet</string>
+    <string name="new_task">Nouvelle tâche</string>
+</resources>
