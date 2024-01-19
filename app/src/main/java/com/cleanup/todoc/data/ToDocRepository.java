@@ -40,13 +40,6 @@ public class ToDocRepository {
     }
     @WorkerThread
     public void addTask(@NonNull TaskEntity taskEntity) {
-        if(mBuildConfigResolver.isDebug()) {
-            try {
-                Thread.sleep(1_200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
         mTaskDao.insert(taskEntity);
     }
     @WorkerThread

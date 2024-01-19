@@ -31,18 +31,24 @@ public abstract class ToDocDatabase extends RoomDatabase {
 
     private static volatile ToDocDatabase sInstance;
 
-    public static ToDocDatabase getInstance(@NonNull Application application, @NonNull Executor executor){
+    public static ToDocDatabase getInstance(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver){
         if (sInstance == null){
             synchronized (ToDocDatabase.class){
                 if(sInstance == null){
-                    sInstance = createDatabase(application, executor);
+                    sInstance = createDatabase(application, executor, buildConfigResolver);
                 }
             }
         }
         return sInstance;
     }
-    private static ToDocDatabase createDatabase(@NonNull Application application, @NonNull Executor executor){
-        Builder<ToDocDatabase> builder = Room.databaseBuilder(application,ToDocDatabase.class, DATABASE_NAME);
+    private static ToDocDatabase createDatabase(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver) {
+        Builder<ToDocDatabase> builder;
+        if (buildConfigResolver.isDebug()) {
+            builder = Room.inMemoryDatabaseBuilder(application, ToDocDatabase.class);
+
+        } else {
+            builder = Room.databaseBuilder(application, ToDocDatabase.class, DATABASE_NAME);
+        }
 
         builder.addCallback(new Callback() {
             /**
@@ -54,7 +60,7 @@ public abstract class ToDocDatabase extends RoomDatabase {
             @Override
             public void onCreate(@NonNull SupportSQLiteDatabase db) {
                 executor.execute(() -> {
-                    ProjectDao projectDao = ToDocDatabase.getInstance(application,executor).getProjectDao();
+                    ProjectDao projectDao = ToDocDatabase.getInstance(application,executor, buildConfigResolver).getProjectDao();
 
                     projectDao.insert(
                             new ProjectEntity(
