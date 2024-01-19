@@ -14,6 +14,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import com.cleanup.todoc.R;
+import com.cleanup.todoc.data.ToDocDatabase;
 import com.cleanup.todoc.ui.add_task.AddTaskViewStateItem;
 import com.cleanup.todoc.utils.ViewAssertions;
 
@@ -21,7 +22,9 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import static com.cleanup.todoc.utils.ViewAssertions.hasDrawableRes;
 import static com.cleanup.todoc.utils.ViewAssertions.hasRecyclerViewItemCount;
@@ -38,6 +41,8 @@ import androidx.annotation.StringRes;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
 
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MainActivityInstrumentedTest {
 
     private final static String FIRST_TASK = "Tâche : 1";
@@ -46,13 +51,39 @@ public class MainActivityInstrumentedTest {
     private final static String FOURTH_TASK = "Tâche : 4";
     private final static String FIFTH_TASK = "Tâche : 5";
     private final static String SIXTH_TASK = "Tâche : 6";
+    private ToDocDatabase db;
+
 
     @Before
     public void setup() {
         ActivityScenario.launch(MainActivity.class);
     }
+
     @Test
-    public void addAndRemoveTask() throws InterruptedException {
+    public void empty() {
+        assertIsDisplayingEmptyState();
+    }
+    @Test
+    public void addTask() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.LUCIDIA, FIRST_TASK);
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(1));
+        deleteItemAtPosition(0);
+    }
+    @Test
+    public void deleteTask() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.LUCIDIA, FIRST_TASK);
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(1));
+        deleteItemAtPosition(0);
+    }
+
+    @Test
+    public void sortTaskByProject() throws InterruptedException {
         assertIsDisplayingEmptyState();
 
         addTask(Project.LUCIDIA, FIRST_TASK);
@@ -62,30 +93,9 @@ public class MainActivityInstrumentedTest {
         addTask(Project.CIRCUS, FIFTH_TASK);
         addTask(Project.TARTAMPION, SIXTH_TASK);
 
-
-        // Assert 6 tasks are present
         onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
                 .check(hasRecyclerViewItemCount(6));
 
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
-                .check(matches(withText(FIRST_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
-                .check(matches(withText(SECOND_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),2))
-                .check(matches(withText(THIRD_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),3))
-                .check(matches(withText(FOURTH_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),4))
-                .check(matches(withText(FIFTH_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),5))
-                .check(matches(withText(SIXTH_TASK)));
-
-        // Sort by project
         onView(
                 allOf(withId(R.id.action_filter),
                         childAtPosition(
@@ -104,20 +114,10 @@ public class MainActivityInstrumentedTest {
                                 0),
                         isDisplayed())).perform(click());
 
-        // Delete 1 task
-        onView(
-                allOf(withId(R.id.img_delete),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.list_tasks),
-                                        3),
-                                1),
-                        isDisplayed())).perform(click());
-
         Thread.sleep(1_000);
 
         onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
-                .check(hasRecyclerViewItemCount(5));
+                .check(hasRecyclerViewItemCount(6));
 
         onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
                 .check(matches(withText(THIRD_TASK)));
@@ -129,10 +129,196 @@ public class MainActivityInstrumentedTest {
                 .check(matches(withText(FIRST_TASK)));
 
         onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),3))
-                .check(matches(withText(SECOND_TASK)));
+                .check(matches(withText(FOURTH_TASK)));
 
         onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),4))
+                .check(matches(withText(SECOND_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),5))
                 .check(matches(withText(FIFTH_TASK)));
+
+        for (int i = 0; i < 6; i++) {
+            deleteItemAtPosition(0);
+            Thread.sleep(1_000);
+        }
+    }
+    @Test
+    public void sortTaskByAlphabeticalAsc() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.TARTAMPION, THIRD_TASK);
+        addTask(Project.CIRCUS, SECOND_TASK);
+        addTask(Project.LUCIDIA, FIRST_TASK);
+
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(3));
+
+        onView(
+                allOf(withId(R.id.action_filter),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.action_bar),
+                                        1),
+                                0),
+                        isDisplayed())).perform(click());
+        Thread.sleep(1_000);
+        onView(
+                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_alphabetical),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.content),
+                                        0),
+                                0),
+                        isDisplayed())).perform(click());
+
+        Thread.sleep(1_000);
+
+        onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(3));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
+                .check(matches(withText(FIRST_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
+                .check(matches(withText(SECOND_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),2))
+                .check(matches(withText(THIRD_TASK)));
+
+        for (int i = 0; i < 3; i++) {
+            deleteItemAtPosition(0);
+            Thread.sleep(1_000);
+        }
+    }
+
+    @Test
+    public void sortTaskByAlphabeticalDesc() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.LUCIDIA, FIRST_TASK);
+        addTask(Project.TARTAMPION, THIRD_TASK);
+        addTask(Project.CIRCUS, SECOND_TASK);
+
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(3));
+
+        onView(
+                allOf(withId(R.id.action_filter),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.action_bar),
+                                        1),
+                                0),
+                        isDisplayed())).perform(click());
+        Thread.sleep(1_000);
+        onView(
+                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_alphabetical_invert),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.content),
+                                        0),
+                                0),
+                        isDisplayed())).perform(click());
+
+        Thread.sleep(1_000);
+
+        onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(3));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
+                .check(matches(withText(THIRD_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
+                .check(matches(withText(SECOND_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),2))
+                .check(matches(withText(FIRST_TASK)));
+
+        for (int i = 0; i < 3; i++) {
+            deleteItemAtPosition(0);
+            Thread.sleep(1_000);
+        }
+    }
+
+    @Test
+    public void sortTaskByChronologicalAsc() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.LUCIDIA, FIRST_TASK);
+        addTask(Project.CIRCUS, SECOND_TASK);
+        addTask(Project.TARTAMPION, THIRD_TASK);
+
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(3));
+
+        //change order before to see if the chronological filter works
+        onView(
+                allOf(withId(R.id.action_filter),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.action_bar),
+                                        1),
+                                0),
+                        isDisplayed())).perform(click());
+        Thread.sleep(1_000);
+        onView(
+                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_alphabetical_invert),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.content),
+                                        0),
+                                0),
+                        isDisplayed())).perform(click());
+
+        Thread.sleep(1_000);
+
+        //change order to older first
+        onView(
+                allOf(withId(R.id.action_filter),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.action_bar),
+                                        1),
+                                0),
+                        isDisplayed())).perform(click());
+        Thread.sleep(1_000);
+        onView(
+                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_oldest_first),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(com.google.android.material.R.id.content),
+                                        0),
+                                0),
+                        isDisplayed())).perform(click());
+
+        Thread.sleep(1_000);
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
+                .check(matches(withText(FIRST_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
+                .check(matches(withText(SECOND_TASK)));
+
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),2))
+                .check(matches(withText(THIRD_TASK)));
+
+        for (int i = 0; i < 3; i++) {
+            deleteItemAtPosition(0);
+            Thread.sleep(1_000);
+        }
+    }
+
+    @Test
+    public void sortTaskByChronologicalDesc() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.LUCIDIA, FIRST_TASK);
+        addTask(Project.CIRCUS, SECOND_TASK);
+        addTask(Project.TARTAMPION, THIRD_TASK);
+
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+                .check(hasRecyclerViewItemCount(3));
+
 
         onView(
                 allOf(withId(R.id.action_filter),
@@ -152,162 +338,26 @@ public class MainActivityInstrumentedTest {
                                 0),
                         isDisplayed())).perform(click());
 
-        // Delete 1 task
-        onView(
-                allOf(withId(R.id.img_delete),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.list_tasks),
-                                        1),
-                                1),
-                        isDisplayed())).perform(click());
-
-        Thread.sleep(1_000);
-
-        onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
-                .check(hasRecyclerViewItemCount(4));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
-                .check(matches(withText(SIXTH_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
-                .check(matches(withText(THIRD_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),2))
-                .check(matches(withText(SECOND_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),3))
-                .check(matches(withText(FIRST_TASK)));
-
-        onView(
-                allOf(withId(R.id.action_filter),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(com.google.android.material.R.id.action_bar),
-                                        1),
-                                0),
-                        isDisplayed())).perform(click());
-        Thread.sleep(1_000);
-        onView(
-                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_oldest_first),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(com.google.android.material.R.id.content),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-
-        // Delete 1 task
-        onView(
-                allOf(withId(R.id.img_delete),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.list_tasks),
-                                        1),
-                                1),
-                        isDisplayed())).perform(click());
-
         Thread.sleep(1_000);
 
         onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
                 .check(hasRecyclerViewItemCount(3));
 
         onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
-                .check(matches(withText(FIRST_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
                 .check(matches(withText(THIRD_TASK)));
 
+        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
+                .check(matches(withText(SECOND_TASK)));
+
         onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),2))
-                .check(matches(withText(SIXTH_TASK)));
-
-        onView(
-                allOf(withId(R.id.action_filter),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(com.google.android.material.R.id.action_bar),
-                                        1),
-                                0),
-                        isDisplayed())).perform(click());
-        Thread.sleep(1_000);
-
-        onView(
-                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_alphabetical_invert),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(com.google.android.material.R.id.content),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-
-        // Delete 1 task
-        onView(
-                allOf(withId(R.id.img_delete),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.list_tasks),
-                                        1),
-                                1),
-                        isDisplayed())).perform(click());
-
-        Thread.sleep(1_000);
-
-        onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
-                .check(hasRecyclerViewItemCount(2));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
-                .check(matches(withText(SIXTH_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
                 .check(matches(withText(FIRST_TASK)));
 
-        onView(
-                allOf(withId(R.id.action_filter),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(com.google.android.material.R.id.action_bar),
-                                        1),
-                                0),
-                        isDisplayed())).perform(click());
-        Thread.sleep(1_000);
-
-        onView(
-                allOf(withId(androidx.transition.R.id.title), withText(R.string.sort_alphabetical),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(com.google.android.material.R.id.content),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-
-        Thread.sleep(1_000);
-
-        onView(ViewAssertions.withIndex(withId(R.id.list_tasks),1))
-                .check(hasRecyclerViewItemCount(2));
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),0))
-                .check(matches(withText(FIRST_TASK)));
-
-        onView(ViewAssertions.withIndex(withId(R.id.lbl_task_name),1))
-                .check(matches(withText(SIXTH_TASK)));
-
-        // Delete 2 task
-        onView(
-                allOf(withId(R.id.img_delete),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.list_tasks),
-                                        1),
-                                1),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(R.id.img_delete),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.list_tasks),
-                                        0),
-                                1),
-                        isDisplayed())).perform(click());
+        for (int i = 0; i < 3; i++) {
+            deleteItemAtPosition(0);
+            Thread.sleep(1_000);
+        }
     }
+
 
     private void assertIsDisplayingEmptyState() {
 
@@ -338,7 +388,7 @@ public class MainActivityInstrumentedTest {
                                 1),
                         isDisplayed())).perform(click());
 
-        Thread.sleep(1_000);
+        Thread.sleep(0_500);
 
         //onView(withId(R.id.txt_task_name)).perform(click());
         onView(
@@ -368,7 +418,18 @@ public class MainActivityInstrumentedTest {
                                 1),
                         isDisplayed())).perform(click());
 
-        Thread.sleep(2_000);
+        Thread.sleep(1_000);
+    }
+
+    private void deleteItemAtPosition(int i) {
+        onView(
+                allOf(withId(R.id.img_delete),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.list_tasks),
+                                        i),
+                                1),
+                        isDisplayed())).perform(click());
     }
 
     private enum Project {
