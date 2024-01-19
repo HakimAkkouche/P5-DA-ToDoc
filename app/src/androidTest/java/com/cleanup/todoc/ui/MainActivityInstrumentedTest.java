@@ -21,7 +21,6 @@ import com.cleanup.todoc.utils.ViewAssertions;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -33,20 +32,14 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.core.internal.deps.dagger.Module;
 import androidx.test.espresso.matcher.ViewMatchers;
-
-import java.io.IOException;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
