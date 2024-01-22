@@ -12,20 +12,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
-import com.cleanup.todoc.R;
-import com.cleanup.todoc.data.ToDocDatabase;
-import com.cleanup.todoc.ui.add_task.AddTaskViewStateItem;
-import com.cleanup.todoc.utils.ViewAssertions;
-
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
 import static com.cleanup.todoc.utils.ViewAssertions.hasDrawableRes;
 import static com.cleanup.todoc.utils.ViewAssertions.hasRecyclerViewItemCount;
 import static org.hamcrest.Matchers.allOf;
@@ -40,8 +26,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.cleanup.todoc.R;
+import com.cleanup.todoc.ui.add_task.AddTaskViewStateItem;
+import com.cleanup.todoc.utils.ViewAssertions;
+
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 
+@RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MainActivityInstrumentedTest {
 
@@ -51,18 +52,17 @@ public class MainActivityInstrumentedTest {
     private final static String FOURTH_TASK = "Tâche : 4";
     private final static String FIFTH_TASK = "Tâche : 5";
     private final static String SIXTH_TASK = "Tâche : 6";
-    private ToDocDatabase db;
-
 
     @Before
     public void setup() {
-        ActivityScenario.launch(MainActivity.class);
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
     }
 
     @Test
     public void empty() {
         assertIsDisplayingEmptyState();
     }
+
     @Test
     public void addTask() throws InterruptedException {
         assertIsDisplayingEmptyState();
@@ -70,15 +70,13 @@ public class MainActivityInstrumentedTest {
         addTask(Project.LUCIDIA, FIRST_TASK);
         onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
                 .check(hasRecyclerViewItemCount(1));
-        deleteItemAtPosition(0);
     }
-    @Test
-    public void deleteTask() throws InterruptedException {
-        assertIsDisplayingEmptyState();
 
-        addTask(Project.LUCIDIA, FIRST_TASK);
-        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+    @Test
+    public void deleteTask() {
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks), 1))
                 .check(hasRecyclerViewItemCount(1));
+
         deleteItemAtPosition(0);
     }
 
@@ -142,6 +140,7 @@ public class MainActivityInstrumentedTest {
             Thread.sleep(1_000);
         }
     }
+
     @Test
     public void sortTaskByAlphabeticalAsc() throws InterruptedException {
         assertIsDisplayingEmptyState();
@@ -388,7 +387,7 @@ public class MainActivityInstrumentedTest {
                                 1),
                         isDisplayed())).perform(click());
 
-        Thread.sleep(0_500);
+        Thread.sleep(1_000);
 
         //onView(withId(R.id.txt_task_name)).perform(click());
         onView(

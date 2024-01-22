@@ -56,7 +56,7 @@ public class AddTaskViewModelTest {
 
     private final MutableLiveData<List<ProjectEntity>> projectsMutableLiveData = new MutableLiveData<>();
 
-    private AddTaskViewModel tasksViewModel;
+    private AddTaskViewModel addTaskViewModel;
 
     @Before
     public void setup() {
@@ -64,7 +64,7 @@ public class AddTaskViewModelTest {
 
         projectsMutableLiveData.setValue(getDefaultProjectEntities());
 
-        tasksViewModel = new AddTaskViewModel(application, toDocRepository, buildConfigResolver, mainExecutor, executor);
+        addTaskViewModel = new AddTaskViewModel(application, toDocRepository, buildConfigResolver, mainExecutor, executor);
 
         Mockito.verify(toDocRepository).getAllProjectsLiveData();
     }
@@ -73,13 +73,13 @@ public class AddTaskViewModelTest {
         long selectedProjectId = 1;
         String taskDescription = "taskDescription";
 
-        tasksViewModel.onProjectSelected(selectedProjectId);
-        tasksViewModel.onTaskDescriptionChanged(taskDescription);
-        tasksViewModel.onOkButtonClicked();
+        addTaskViewModel.onProjectSelected(selectedProjectId);
+        addTaskViewModel.onTaskDescriptionChanged(taskDescription);
+        addTaskViewModel.onOkButtonClicked();
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         assertEquals(new AddTaskViewState(getDefaultAddTaskViewStateItems(), false), addTaskViewState);
         assertNull(toastMessage);
@@ -93,9 +93,9 @@ public class AddTaskViewModelTest {
     public void emptyProjects() {
         projectsMutableLiveData.setValue(new ArrayList<>());
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         assertEquals(new AddTaskViewState(new ArrayList<>(), false), addTaskViewState);
         assertNull(toastMessage);
@@ -105,9 +105,9 @@ public class AddTaskViewModelTest {
     public void nullProjects() {
         projectsMutableLiveData.setValue(null);
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         assertNull(addTaskViewState);
         assertNull(toastMessage);
@@ -117,12 +117,12 @@ public class AddTaskViewModelTest {
     public void addTaskFailedNoSelectedProject() {
         String taskDescription = "taskDescription";
 
-        tasksViewModel.onTaskDescriptionChanged(taskDescription);
-        tasksViewModel.onOkButtonClicked();
+        addTaskViewModel.onTaskDescriptionChanged(taskDescription);
+        addTaskViewModel.onOkButtonClicked();
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         assertEquals(new AddTaskViewState(getDefaultAddTaskViewStateItems(), false), addTaskViewState);
         assertNull(toastMessage);
@@ -134,12 +134,12 @@ public class AddTaskViewModelTest {
 
         long selectedProjectId = 1;
 
-        tasksViewModel.onProjectSelected(selectedProjectId);
-        tasksViewModel.onOkButtonClicked();
+        addTaskViewModel.onProjectSelected(selectedProjectId);
+        addTaskViewModel.onOkButtonClicked();
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         assertEquals(new AddTaskViewState(getDefaultAddTaskViewStateItems(), false), addTaskViewState);
         assertNull(toastMessage);
@@ -151,13 +151,13 @@ public class AddTaskViewModelTest {
 
         long selectedProjectId = 1;
 
-        tasksViewModel.onProjectSelected(selectedProjectId);
-        tasksViewModel.onTaskDescriptionChanged("");
-        tasksViewModel.onOkButtonClicked();
+        addTaskViewModel.onProjectSelected(selectedProjectId);
+        addTaskViewModel.onTaskDescriptionChanged("");
+        addTaskViewModel.onOkButtonClicked();
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         // Then
         assertEquals(new AddTaskViewState(getDefaultAddTaskViewStateItems(), false), addTaskViewState);
@@ -174,13 +174,13 @@ public class AddTaskViewModelTest {
         Mockito.doReturn(true).when(buildConfigResolver).isDebug();
 
         // When
-        tasksViewModel.onProjectSelected(1);
-        tasksViewModel.onTaskDescriptionChanged("taskDescription");
-        tasksViewModel.onOkButtonClicked();
+        addTaskViewModel.onProjectSelected(1);
+        addTaskViewModel.onTaskDescriptionChanged("taskDescription");
+        addTaskViewModel.onOkButtonClicked();
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         // Then
         assertEquals(new AddTaskViewState(getDefaultAddTaskViewStateItems(), false), addTaskViewState);
@@ -203,13 +203,13 @@ public class AddTaskViewModelTest {
         Mockito.doReturn(false).when(buildConfigResolver).isDebug();
 
         // When
-        tasksViewModel.onProjectSelected(1);
-        tasksViewModel.onTaskDescriptionChanged("taskDescription");
-        tasksViewModel.onOkButtonClicked();
+        addTaskViewModel.onProjectSelected(1);
+        addTaskViewModel.onTaskDescriptionChanged("taskDescription");
+        addTaskViewModel.onOkButtonClicked();
 
-        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(tasksViewModel.getAddTaskViewStateLiveData());
-        String toastMessage = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDisplayToastMessageSingleLiveEvent());
-        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(tasksViewModel.getDismissDialogSingleLiveEvent());
+        AddTaskViewState addTaskViewState = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getAddTaskViewStateLiveData());
+        String toastMessage = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDisplayToastMessageSingleLiveEvent());
+        Boolean dismissDialog = LiveDataTestUtils.getValueForTesting(addTaskViewModel.getDismissDialogSingleLiveEvent());
 
         // Then
         assertEquals(new AddTaskViewState(getDefaultAddTaskViewStateItems(), false), addTaskViewState);

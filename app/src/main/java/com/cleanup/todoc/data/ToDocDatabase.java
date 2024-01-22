@@ -1,5 +1,6 @@
 package com.cleanup.todoc.data;
 
+
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -9,7 +10,6 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.cleanup.todoc.BuildConfig;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.data.dao.ProjectDao;
 import com.cleanup.todoc.data.dao.TaskDao;
@@ -29,7 +29,7 @@ import java.util.concurrent.Executor;
 public abstract class ToDocDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "ToDoc_Database";
 
-    private static volatile ToDocDatabase sInstance;
+    private static ToDocDatabase sInstance;
 
     public static ToDocDatabase getInstance(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver){
         if (sInstance == null){
@@ -43,10 +43,12 @@ public abstract class ToDocDatabase extends RoomDatabase {
     }
     private static ToDocDatabase createDatabase(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver) {
         Builder<ToDocDatabase> builder;
-        if (buildConfigResolver.isDebug()) {
-            builder = Room.inMemoryDatabaseBuilder(application, ToDocDatabase.class);
-
+        if (buildConfigResolver.isRunningAndroidTest()) {
+            // Use a different database configuration for testing
+            builder = Room.inMemoryDatabaseBuilder(application, ToDocDatabase.class)
+                    .allowMainThreadQueries();
         } else {
+            // Use the regular database configuration
             builder = Room.databaseBuilder(application, ToDocDatabase.class, DATABASE_NAME);
         }
 
@@ -60,7 +62,7 @@ public abstract class ToDocDatabase extends RoomDatabase {
             @Override
             public void onCreate(@NonNull SupportSQLiteDatabase db) {
                 executor.execute(() -> {
-                    ProjectDao projectDao = ToDocDatabase.getInstance(application,executor, buildConfigResolver).getProjectDao();
+                    ProjectDao projectDao = sInstance.getProjectDao();
 
                     projectDao.insert(
                             new ProjectEntity(
@@ -80,7 +82,7 @@ public abstract class ToDocDatabase extends RoomDatabase {
                 });
             }
         });
-        if (BuildConfig.DEBUG) {
+        if (buildConfigResolver.isDebug()) {
             builder.fallbackToDestructiveMigration();
         }
         return builder.build();
@@ -88,5 +90,4 @@ public abstract class ToDocDatabase extends RoomDatabase {
 
     public abstract ProjectDao getProjectDao();
     public abstract TaskDao getTaskDao();
-
 }
