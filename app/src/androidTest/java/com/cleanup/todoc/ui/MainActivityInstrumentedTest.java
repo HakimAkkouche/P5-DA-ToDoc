@@ -18,28 +18,43 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 
+import android.app.Application;
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.cleanup.todoc.MainApplication;
 import com.cleanup.todoc.R;
+import com.cleanup.todoc.data.BuildConfigResolver;
+import com.cleanup.todoc.data.ToDocDatabase;
 import com.cleanup.todoc.ui.add_task.AddTaskViewStateItem;
 import com.cleanup.todoc.utils.ViewAssertions;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -53,10 +68,23 @@ public class MainActivityInstrumentedTest {
     private final static String FIFTH_TASK = "Tâche : 5";
     private final static String SIXTH_TASK = "Tâche : 6";
 
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
     @Before
     public void setup() {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        Executor executor = Executors.newSingleThreadExecutor();
+
+        RoomDatabase.Builder<ToDocDatabase> builder = Room.inMemoryDatabaseBuilder(context,
+                        ToDocDatabase.class)
+                .setTransactionExecutor(executor) // <-- this makes all the difference
+                .allowMainThreadQueries();
+        ToDocDatabase.setInstance(MainApplication.getApplication(), executor, new BuildConfigResolver(), builder);
+
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
     }
+
 
     @Test
     public void empty() {
@@ -68,12 +96,16 @@ public class MainActivityInstrumentedTest {
         assertIsDisplayingEmptyState();
 
         addTask(Project.LUCIDIA, FIRST_TASK);
-        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
-                .check(hasRecyclerViewItemCount(1));
+
+        deleteItemAtPosition(0);
     }
 
     @Test
-    public void deleteTask() {
+    public void deleteTask() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        addTask(Project.LUCIDIA, FIRST_TASK);
+
         onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks), 1))
                 .check(hasRecyclerViewItemCount(1));
 

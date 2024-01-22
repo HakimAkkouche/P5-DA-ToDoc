@@ -53,7 +53,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         Application mainApplication = MainApplication.getApplication();
         ToDocDatabase toDocDatabase = ToDocDatabase.getInstance(mainApplication, mExecutor, mBuildConfigResolver);
 
-        mToDocRepository = new ToDocRepository(toDocDatabase.getProjectDao(), toDocDatabase.getTaskDao(),mBuildConfigResolver);
+        mToDocRepository = new ToDocRepository(toDocDatabase.getProjectDao(), toDocDatabase.getTaskDao());
     }
 
     @SuppressWarnings("unchecked")

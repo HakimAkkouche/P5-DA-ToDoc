@@ -19,15 +19,13 @@ import java.util.List;
  * and handle the Thread switching itself, since the LiveData is always working on the Main Thread.
  */
 public class ToDocRepository {
-    @NonNull
-    private final BuildConfigResolver mBuildConfigResolver;
+
     private final TaskDao mTaskDao;
     private final ProjectDao mProjectDao;
 
-    public ToDocRepository(ProjectDao projectDao, TaskDao taskDao, @NonNull BuildConfigResolver buildConfigResolver) {
+    public ToDocRepository(ProjectDao projectDao, TaskDao taskDao) {
         this.mTaskDao = taskDao;
         this.mProjectDao = projectDao;
-        this.mBuildConfigResolver = buildConfigResolver;
     }
 
     @MainThread

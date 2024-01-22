@@ -1,15 +1,16 @@
 package com.cleanup.todoc.data;
 
-
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.cleanup.todoc.BuildConfig;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.data.dao.ProjectDao;
 import com.cleanup.todoc.data.dao.TaskDao;
@@ -35,22 +36,14 @@ public abstract class ToDocDatabase extends RoomDatabase {
         if (sInstance == null){
             synchronized (ToDocDatabase.class){
                 if(sInstance == null){
-                    sInstance = createDatabase(application, executor, buildConfigResolver);
+                    Builder<ToDocDatabase> builder = Room.databaseBuilder(application, ToDocDatabase.class, DATABASE_NAME);
+                    sInstance = createDatabase(application, executor, buildConfigResolver, builder);
                 }
             }
         }
         return sInstance;
     }
-    private static ToDocDatabase createDatabase(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver) {
-        Builder<ToDocDatabase> builder;
-        if (buildConfigResolver.isRunningAndroidTest()) {
-            // Use a different database configuration for testing
-            builder = Room.inMemoryDatabaseBuilder(application, ToDocDatabase.class)
-                    .allowMainThreadQueries();
-        } else {
-            // Use the regular database configuration
-            builder = Room.databaseBuilder(application, ToDocDatabase.class, DATABASE_NAME);
-        }
+    private static ToDocDatabase createDatabase(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver, Builder<ToDocDatabase> builder) {
 
         builder.addCallback(new Callback() {
             /**
@@ -82,10 +75,13 @@ public abstract class ToDocDatabase extends RoomDatabase {
                 });
             }
         });
-        if (buildConfigResolver.isDebug()) {
+        if (BuildConfig.DEBUG) {
             builder.fallbackToDestructiveMigration();
         }
         return builder.build();
+    }
+    public static void setInstance(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver,RoomDatabase.Builder<ToDocDatabase> builder) {
+        sInstance = createDatabase(application, executor, buildConfigResolver, builder);
     }
 
     public abstract ProjectDao getProjectDao();
