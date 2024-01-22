@@ -80,6 +80,8 @@ public abstract class ToDocDatabase extends RoomDatabase {
         }
         return builder.build();
     }
+
+    @VisibleForTesting
     public static void setInstance(@NonNull Application application, @NonNull Executor executor, BuildConfigResolver buildConfigResolver,RoomDatabase.Builder<ToDocDatabase> builder) {
         sInstance = createDatabase(application, executor, buildConfigResolver, builder);
     }
