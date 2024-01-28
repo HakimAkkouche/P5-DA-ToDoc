@@ -68,16 +68,22 @@ public class MainActivityInstrumentedTest {
         assertIsDisplayingEmptyState();
 
         addTask(Project.LUCIDIA, FIRST_TASK);
-        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks),1))
+        onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks), 1))
                 .check(hasRecyclerViewItemCount(1));
+        deleteItemAtPosition(0);
     }
 
     @Test
-    public void deleteTask() {
+    public void deleteTask() throws InterruptedException {
+        assertIsDisplayingEmptyState();
+
+        Thread.sleep(1_000);
+        addTask(Project.LUCIDIA, FIRST_TASK);
         onView(ViewAssertions.withIndex(ViewMatchers.withId(R.id.list_tasks), 1))
                 .check(hasRecyclerViewItemCount(1));
-
         deleteItemAtPosition(0);
+
+        assertIsDisplayingEmptyState();
     }
 
     @Test
